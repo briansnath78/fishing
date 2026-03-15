@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bait Color Selector</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161c24;
+    --card: #1c2433;
+    --border: #2a3547;
+    --accent: #e8a020;
+    --accent2: #3a8c6e;
+    --accent3: #4a9edd;
+    --text: #d8e0ec;
+    --muted: #6b7a95;
+    --radius: 8px;
+    --radius-lg: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(58,140,110,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(74,158,221,0.07) 0%, transparent 60%);
+  }
+
+  header {
+    padding: 18px 24px 14px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(22,28,36,0.92);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-shadow: 0 0 30px rgba(232,160,32,0.3);
+  }
+  header span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  .conditions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  @media(min-width: 560px) {
+    .conditions-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media(min-width: 820px) {
+    .conditions-grid { grid-template-columns: repeat(6, 1fr); }
+  }
+
+  .cond-group {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px 12px 14px;
+  }
+  .cond-group label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cond-group select {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 7px 28px 7px 9px;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%236b7a95'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 9px center;
+  }
+  .cond-group select:focus { outline: none; border-color: var(--accent); }
+
+  /* INSIGHT PILLS */
+  .insight-strip {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .insight-pill {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 5px 13px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .insight-pill.active-moon { border-color: rgba(200,180,100,0.5); color: #d4bc60; background: rgba(200,180,100,0.08); }
+  .insight-pill.active-wind { border-color: rgba(74,158,221,0.5); color: var(--accent3); background: rgba(74,158,221,0.07); }
+  .insight-pill.warn-wind   { border-color: rgba(199,75,42,0.5); color: #e06040; background: rgba(199,75,42,0.08); }
+
+  /* RUN BUTTON */
+  .run-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent), #c87010);
+    border: none;
+    border-radius: var(--radius-lg);
+    color: #0d1117;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+    cursor: pointer;
+    margin-bottom: 28px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 20px rgba(232,160,32,0.25);
+  }
+  .run-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(232,160,32,0.4); }
+  .run-btn:active { transform: translateY(0); }
+
+  #results { display: none; }
+
+  .context-banner {
+    background: linear-gradient(135deg, rgba(58,140,110,0.15), rgba(74,158,221,0.1));
+    border: 1px solid rgba(58,140,110,0.3);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.93rem;
+    color: var(--text);
+    line-height: 1.75;
+  }
+  .context-banner strong { color: var(--accent); }
+  .moon-note  { color: #d4bc60; }
+  .wind-note  { color: var(--accent3); }
+  .wind-warn  { color: #e06040; }
+
+  .baits-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media(min-width: 600px) {
+    .baits-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .bait-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: slideUp 0.3s ease both;
+  }
+  .bait-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .bait-card.top-pick {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 4px 24px rgba(232,160,32,0.15);
+  }
+
+  .bait-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px 9px;
+    border-bottom: 1px solid var(--border);
+  }
+  .bait-icon  { font-size: 1.3rem; flex-shrink: 0; }
+  .bait-name  {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+    flex: 1;
+  }
+  .top-pick-badge {
+    background: var(--accent);
+    color: #0d1117;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .bait-body { padding: 11px 14px 13px; }
+
+  .confidence-bar { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 10px; overflow: hidden; }
+  .confidence-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+  .conf-high { background: linear-gradient(90deg, var(--accent2), #5bc48e); }
+  .conf-med  { background: linear-gradient(90deg, var(--accent), #f0c040); }
+  .conf-low  { background: linear-gradient(90deg, var(--muted), #8896b0); }
+
+  .modifier-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+  .mod-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .mod-moon     { background: rgba(200,180,100,0.15); color: #d4bc60; border: 1px solid rgba(200,180,100,0.3); }
+  .mod-wind     { background: rgba(74,158,221,0.12);  color: var(--accent3); border: 1px solid rgba(74,158,221,0.3); }
+  .mod-windwarn { background: rgba(199,75,42,0.12);   color: #e06040; border: 1px solid rgba(199,75,42,0.3); }
+
+  .color-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 9px; }
+  .color-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+  }
+  .color-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15); }
+  .bait-tip { font-size: 0.8rem; color: var(--muted); line-height: 1.5; font-style: italic; margin-bottom: 12px; }
+
+  /* TECHNIQUE SECTION */
+  .technique-section {
+    border-top: 1px solid var(--border);
+    margin-top: 2px;
+    padding-top: 10px;
+  }
+  .technique-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .technique-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .technique-step {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .step-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+    min-width: 58px;
+    text-align: center;
+  }
+  .step-primary   { background: rgba(232,160,32,0.18); color: var(--accent);  border: 1px solid rgba(232,160,32,0.35); }
+  .step-secondary { background: rgba(74,158,221,0.12); color: var(--accent3); border: 1px solid rgba(74,158,221,0.3); }
+  .step-note      { background: rgba(58,140,110,0.12); color: #5ec490;        border: 1px solid rgba(58,140,110,0.3); }
+  .step-text {
+    font-size: 0.8rem;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .step-text em { color: var(--muted); font-style: normal; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎣 BaitSelect</h1>
+  <span>Bass Color Guide</span>
+</header>
+
+<div class="container">
+
+  <p class="section-label">Set Conditions</p>
+  <div class="conditions-grid">
+
+    <div class="cond-group">
+      <label>☁️ Sky / Light</label>
+      <select id="sky">
+        <option value="sunny">Sunny / Clear</option>
+        <option value="partly">Partly Cloudy</option>
+        <option value="overcast">Overcast</option>
+        <option value="lowlight">Low Light / Dawn</option>
+        <option value="rainy">Rainy / Storm</option>
+        <option value="bright">Bright Bluebird</option>
+      </select>
+    </div>
+
+    <div class="cond-group">
+      <label>🌡️ Season / Phase</label>
+      <select id="season">
+        <option value="prespawn">Pre-Spawn</option>
+        <option value="spawn">Spawn</option>
+        <option value="postspawn">Post-Spawn</option>
+        <option value="summer">Summer</option>
+        <option value="fall">Fall</option>
+        <option value="winter">Winter</option>
+        <option value="latesummer">Late Summer</option>
+      </select>
+    </div>
+
+    <div class="cond-group">
+      <label>💧 Water Clarity</label>
+      <select id="clarity">
+        <option value="clear">Clear (&gt;4ft)</option>
+        <option value="stained">Stained (1–4ft)</option>
+        <option value="muddy">Muddy (&lt;1ft)</option>
+        <option value="tannic">Tannic / Dark</option>
+      </select>
+    </div>
+
+    <div class="cond-group">
+      <label>🌊 Water Temp</label>
+      <select id="temp">
+        <option value="cold">Cold (&lt;50°F)</option>
+        <option value="cool">Cool (50–60°F)</option>
+        <option value="warming">Warming (60–68°F)</option>
+        <option value="prime">Prime (68–75°F)</option>
+        <option value="warm">Warm (75–82°F)</option>
+        <option value="hot">Hot (&gt;82°F)</option>
+      </select>
+    </div>
+
+    <div class="cond-group">
+      <label>🌙 Moon Phase</label>
+      <select id="moon" onchange="updateInsights()">
+        <option value="new">New Moon</option>
+        <option value="waxing_crescent">Waxing Crescent</option>
+        <option value="first_quarter">First Quarter</option>
+        <option value="waxing_gibbous">Waxing Gibbous</option>
+        <option value="full">Full Moon</option>
+        <option value="waning_gibbous">Waning Gibbous</option>
+        <option value="last_quarter">Last Quarter</option>
+        <option value="waning_crescent">Waning Crescent</option>
+      </select>
+    </div>
+
+    <div class="cond-group">
+      <label>💨 Wind Speed</label>
+      <select id="wind" onchange="updateInsights()">
+        <option value="calm">Calm (&lt;5 mph)</option>
+        <option value="light">Light (5–10 mph)</option>
+        <option value="moderate">Moderate (10–20 mph)</option>
+        <option value="strong">Strong (20–30 mph)</option>
+        <option value="gale">Gale (&gt;30 mph)</option>
+      </select>
+    </div>
+
+  </div>
+
+  <div class="insight-strip" id="insightStrip"></div>
+
+  <button class="run-btn" onclick="generate()">⚡ SHOW MY COLORS</button>
+
+  <div id="results">
+    <p class="section-label">Recommended Colors</p>
+    <div class="context-banner" id="contextBanner"></div>
+    <div class="baits-grid" id="baitsGrid"></div>
+  </div>
+
+</div>
+
+<script>
+// ─── LOOKUP DATA ─────────────────────────────────────────────────────────────
+
+const BAIT_ICONS = {
+  "Spinnerbait":"🔄","Rattletrap":"🎯","Crankbait":"🐟","Squarebill":"🟦",
+  "Chatterbait":"⚡","Jig":"🪝","Worm":"🪱","Craw":"🦞","Swimbait":"🐠",
+  "Dice Bait":"🎲","Senko":"📏","Fluke":"🌊","Walking Bait":"🚶","Prop Bait":"💥"
+};
+
+const COLORS = {
+  green_pumpkin:    { name:"Green Pumpkin",     hex:"#5a7a3a" },
+  watermelon:       { name:"Watermelon Red",    hex:"#5e8a4a" },
+  shad:             { name:"Shad / Silver",     hex:"#b0bec5" },
+  bluegill:         { name:"Bluegill",          hex:"#4a6fa5" },
+  tennessee_shad:   { name:"Tennessee Shad",    hex:"#7a9fc0" },
+  crawdad:          { name:"Crawdad Orange",    hex:"#bf6030" },
+  natural_craw:     { name:"Natural Craw",      hex:"#7d5a3c" },
+  perch:            { name:"Perch",             hex:"#7a9040" },
+  black_blue:       { name:"Black & Blue",      hex:"#1a2060" },
+  june_bug:         { name:"June Bug",          hex:"#4a1a6a" },
+  black_red:        { name:"Black & Red",       hex:"#8b1a1a" },
+  brown_orange:     { name:"Brown Orange",      hex:"#8b4a10" },
+  chartreuse:       { name:"Chartreuse",        hex:"#c8e820" },
+  white:            { name:"White / Pearl",     hex:"#e8eaf0" },
+  ghost:            { name:"Ghost / Clear",     hex:"#ccd4e0" },
+  sexy_shad:        { name:"Sexy Shad",         hex:"#8ab4d0" },
+  fire_tiger:       { name:"Fire Tiger",        hex:"#e08010" },
+  red_craw:         { name:"Red Craw",          hex:"#c02020" },
+  spring_craw:      { name:"Spring Craw",       hex:"#c07030" },
+  blueback_herring: { name:"Blueback Herring",  hex:"#3a6090" },
+  albino:           { name:"Albino / Bone",     hex:"#d8caa0" },
+  golden_shiner:    { name:"Golden Shiner",     hex:"#c8a030" },
+  red_shad:         { name:"Red Shad",          hex:"#a03050" },
+  morning_dawn:     { name:"Morning Dawn",      hex:"#e0a0b0" },
+  cali_craw:        { name:"Cali Craw",         hex:"#a04820" },
+};
+
+const MOON_LABELS = {
+  new:"New Moon 🌑", waxing_crescent:"Waxing Crescent 🌒", first_quarter:"First Quarter 🌓",
+  waxing_gibbous:"Waxing Gibbous 🌔", full:"Full Moon 🌕", waning_gibbous:"Waning Gibbous 🌖",
+  last_quarter:"Last Quarter 🌗", waning_crescent:"Waning Crescent 🌘"
+};
+const WIND_LABELS = {
+  calm:"Calm (<5 mph)", light:"Light (5–10 mph)", moderate:"Moderate (10–20 mph)",
+  strong:"Strong (20–30 mph)", gale:"Gale (>30 mph)"
+};
+const SEASON_LABELS = {
+  prespawn:"Pre-Spawn", spawn:"Spawn", postspawn:"Post-Spawn",
+  summer:"Summer", fall:"Fall", winter:"Winter", latesummer:"Late Summer"
+};
+const CLARITY_LABELS = { clear:"Clear Water", stained:"Stained", muddy:"Muddy", tannic:"Tannic" };
+const SKY_LABELS = {
+  sunny:"Sunny", partly:"Partly Cloudy", overcast:"Overcast",
+  lowlight:"Low Light", rainy:"Rainy", bright:"Bright Bluebird"
+};
+const TEMP_LABELS = {
+  cold:"Cold (<50°)", cool:"Cool (50–60°)", warming:"Warming (60–68°)",
+  prime:"Prime (68–75°)", warm:"Warm (75–82°)", hot:"Hot (>82°)"
+};
+
+// ─── MOON & WIND MODIFIERS ───────────────────────────────────────────────────
+
+function getMoonModifiers(moon) {
+  switch(moon) {
+    case "new":
+      return {
+        boost: ["Walking Bait","Prop Bait","Spinnerbait","Rattletrap"],
+        notes: "New moon = peak shallow/topwater bite. Bass feed aggressively in low-light conditions.",
+        feedingWindow: true
+      };
+    case "full":
+      return {
+        boost: ["Walking Bait","Prop Bait","Swimbait","Spinnerbait"],
+        notes: "Full moon triggers night feeding — early AM topwater bite can be exceptional. Fish may be tough midday.",
+        feedingWindow: true
+      };
+    case "waxing_gibbous":
+    case "waning_gibbous":
+      return {
+        boost: ["Crankbait","Chatterbait","Rattletrap"],
+        notes: "Gibbous moon phases produce solid mid-range feeding activity. Reaction baits excel.",
+        feedingWindow: false
+      };
+    case "first_quarter":
+    case "last_quarter":
+      return {
+        boost: ["Jig","Worm","Craw","Senko"],
+        notes: "Quarter moons = finesse window. Slower presentations often outperform power fishing.",
+        feedingWindow: false
+      };
+    default:
+      return {
+        boost: [],
+        notes: "Crescent moon — average feeding activity. Match conditions and forage.",
+        feedingWindow: false
+      };
+  }
+}
+
+function getWindModifiers(wind) {
+  switch(wind) {
+    case "calm":
+      return {
+        boost: ["Walking Bait","Prop Bait","Fluke","Senko","Dice Bait"],
+        avoid: [],
+        colorShift: false,
+        notes: "Glass surface — finesse and topwater shine. Natural colors and light presentations.",
+        severe: false
+      };
+    case "light":
+      return {
+        boost: ["Spinnerbait","Chatterbait","Crankbait","Walking Bait"],
+        avoid: [],
+        colorShift: false,
+        notes: "Perfect chop. All-around excellent conditions. Work windward banks.",
+        severe: false
+      };
+    case "moderate":
+      return {
+        boost: ["Spinnerbait","Chatterbait","Rattletrap","Squarebill","Crankbait"],
+        avoid: ["Prop Bait","Walking Bait","Fluke"],
+        colorShift: true,
+        notes: "Wind pushes bait to windward banks. Power fishing excels; add chartreuse/white for visibility. Topwater gets tricky.",
+        severe: false
+      };
+    case "strong":
+      return {
+        boost: ["Rattletrap","Crankbait","Jig","Spinnerbait","Chatterbait"],
+        avoid: ["Prop Bait","Walking Bait","Fluke","Swimbait","Senko"],
+        colorShift: true,
+        notes: "Go heavier and louder. Chartreuse/white dominate. Topwater and finesse nearly unfishable. Work protected pockets.",
+        severe: false
+      };
+    case "gale":
+      return {
+        boost: ["Jig","Rattletrap","Squarebill"],
+        avoid: ["Prop Bait","Walking Bait","Fluke","Swimbait","Senko","Dice Bait","Worm"],
+        colorShift: true,
+        notes: "⚠️ Dangerous conditions — seek shelter. If fishing, heavy jigs in protected coves only. High-vis colors essential.",
+        severe: true
+      };
+  }
+}
+
+// ─── COLOR SELECTION ─────────────────────────────────────────────────────────
+
+function pickColors(bait, sky, season, clarity, temp, moon, wind) {
+  const isDark    = clarity === "muddy" || clarity === "tannic";
+  const isClear   = clarity === "clear";
+  const isStained = clarity === "stained";
+  const isLow     = sky === "lowlight" || sky === "overcast" || sky === "rainy";
+  const isBright  = sky === "sunny" || sky === "bright";
+  const isSpawn   = season === "spawn" || season === "prespawn";
+  const isFall    = season === "fall";
+  const isWinter  = season === "winter";
+  const isCold    = temp === "cold" || temp === "cool";
+  const isHot     = temp === "hot" || temp === "warm";
+  const windMod   = getWindModifiers(wind);
+  const moonMod   = getMoonModifiers(moon);
+  const forceHighVis  = windMod.colorShift;
+  const moonLowLight  = moon === "new" || moon === "full";
+
+  let palette = [];
+  if (isDark) {
+    palette = ["black_blue","chartreuse","june_bug","black_red","white","red_craw"];
+  } else if (isStained) {
+    palette = isLow
+      ? ["chartreuse","black_blue","fire_tiger","white","red_craw","brown_orange"]
+      : ["chartreuse","white","black_blue","watermelon","fire_tiger","sexy_shad"];
+  } else if (isClear) {
+    palette = isBright
+      ? ["green_pumpkin","watermelon","shad","ghost","natural_craw","tennessee_shad","albino"]
+      : ["shad","sexy_shad","green_pumpkin","white","tennessee_shad","blueback_herring"];
+  } else {
+    palette = ["shad","chartreuse","green_pumpkin","white","black_blue","sexy_shad"];
+  }
+
+  // Season
+  if (isSpawn) {
+    ["red_craw","spring_craw"].forEach(c => { if(!palette.includes(c)) palette.unshift(c); });
+    ["white","natural_craw"].forEach(c => { if(!palette.includes(c)) palette.push(c); });
+  }
+  if (isFall) {
+    ["shad","sexy_shad"].forEach(c => { if(!palette.includes(c)) palette.unshift(c); });
+    ["blueback_herring","white"].forEach(c => { if(!palette.includes(c)) palette.push(c); });
+  }
+  if (isWinter || isCold) {
+    palette = palette.filter(c => !["fire_tiger","chartreuse","red_craw"].includes(c));
+    ["shad","ghost"].forEach(c => { if(!palette.includes(c)) palette.unshift(c); });
+    ["albino","black_blue"].forEach(c => { if(!palette.includes(c)) palette.push(c); });
+  }
+  if (isHot) {
+    ["watermelon","green_pumpkin"].forEach(c => { if(!palette.includes(c)) palette.unshift(c); });
+    if(!palette.includes("june_bug")) palette.push("june_bug");
+  }
+
+  // Wind: force high-vis
+  if (forceHighVis && !isWinter) {
+    ["white","chartreuse"].forEach(c => { palette = palette.filter(x=>x!==c); palette.unshift(c); });
+  }
+
+  // Moon: new/full — add dark naturals
+  if (moonLowLight && isClear && !isWinter) {
+    if(!palette.includes("black_blue")) palette.push("black_blue");
+    if(!palette.includes("june_bug"))   palette.push("june_bug");
+  }
+
+  // Bait-specific
+  switch(bait) {
+    case "Spinnerbait":
+      ["chartreuse","white"].forEach(c => { if(!palette.includes(c)) palette.splice(1,0,c); });
+      break;
+    case "Rattletrap": case "Crankbait": case "Squarebill":
+      ["shad","sexy_shad"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      if(isSpawn && !palette.includes("red_craw")) palette.unshift("red_craw");
+      break;
+    case "Chatterbait":
+      ["chartreuse","white"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      break;
+    case "Jig": case "Craw":
+      ["black_blue","green_pumpkin"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      if(!palette.includes("brown_orange")) palette.push("brown_orange");
+      if(isDark && !palette.includes("june_bug")) palette.splice(1,0,"june_bug");
+      break;
+    case "Worm": case "Senko":
+      ["green_pumpkin","watermelon"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      if(!palette.includes("june_bug")) palette.push("june_bug");
+      if(isDark && !palette.includes("black_blue")) palette.unshift("black_blue");
+      break;
+    case "Swimbait": case "Fluke":
+      ["shad","white","ghost"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      if(isFall && !palette.includes("blueback_herring")) palette.splice(1,0,"blueback_herring");
+      if(!palette.includes("perch")) palette.push("perch");
+      break;
+    case "Dice Bait":
+      ["green_pumpkin","watermelon"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      break;
+    case "Walking Bait": case "Prop Bait":
+      ["white","shad","ghost"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      if(!palette.includes("albino")) palette.push("albino");
+      if(isLow && !palette.includes("chartreuse")) palette.splice(1,0,"chartreuse");
+      if(moonLowLight && !palette.includes("black_blue")) palette.push("black_blue");
+      break;
+  }
+
+  return [...new Set(palette)].slice(0, 6);
+}
+
+// ─── CONFIDENCE ──────────────────────────────────────────────────────────────
+
+function getConfidence(bait, season, temp, moon, wind) {
+  const windMod = getWindModifiers(wind);
+  const moonMod = getMoonModifiers(moon);
+  if (windMod.avoid.includes(bait)) return "low";
+  const moonBoost   = moonMod.boost.includes(bait);
+  const windBoost   = windMod.boost.includes(bait);
+  const primeCombos = [
+    ["Jig","prespawn"],["Craw","prespawn"],["Jig","spawn"],
+    ["Crankbait","prespawn"],["Spinnerbait","prespawn"],
+    ["Swimbait","fall"],["Rattletrap","fall"],["Fluke","fall"],
+    ["Senko","summer"],["Worm","summer"],
+    ["Crankbait","winter"],["Rattletrap","winter"],
+    ["Chatterbait","prespawn"],
+    ["Walking Bait","summer"],["Prop Bait","summer"],
+  ];
+  const lowCombos = [
+    ["Prop Bait","winter"],["Walking Bait","winter"],["Fluke","winter"],["Swimbait","cold"],
+  ];
+  const seasonPrime = primeCombos.some(([b,s]) => b===bait && s===season);
+  const seasonLow   = lowCombos.some(([b,s])   => b===bait && (s===season||s===temp));
+  if (seasonLow) return "low";
+  if ((moonBoost && windBoost)||(moonBoost && seasonPrime)||(windBoost && seasonPrime)||seasonPrime||moonBoost||windBoost) return "high";
+  return "medium";
+}
+
+// ─── TIPS ────────────────────────────────────────────────────────────────────
+
+function getTip(bait, season, sky, temp, moon, wind) {
+  const windMod = getWindModifiers(wind);
+  const moonMod = getMoonModifiers(moon);
+  const isFullNew = moon === "full" || moon === "new";
+  const isWindy   = wind === "moderate" || wind === "strong" || wind === "gale";
+  const isCalm    = wind === "calm";
+
+  const baseTips = {
+    "Spinnerbait":  { prespawn:"Slow-roll over points and humps as bass move shallow.", spawn:"White or chartreuse bladed around spawning flats triggers reaction strikes.", fall:"Match the shad hatch — fast-roll a double willow at baitfish depth.", winter:"Slow-roll a larger blade over deep brush piles.", _default:"Vary retrieve speed until you find what they want today." },
+    "Rattletrap":   { fall:"Parallel the bank burning a 1/2 oz through schooling shad — lethal.", winter:"Yo-yo off bottom or rip through suspended fish.", prespawn:"Bang off stumps and laydowns to trigger pre-spawn bass.", _default:"Count it down to the strike zone and vary cadence." },
+    "Crankbait":    { prespawn:"Target the first major breakline at 6–10ft with a shallow diver.", winter:"Slow down dramatically — a crankbait crawled off bottom can be deadly.", fall:"Match baitfish size and parallel points and channel swings.", _default:"Let it deflect off hard structure to trigger reaction bites." },
+    "Squarebill":   { prespawn:"Crash it into shallow wood and rock — deflection = strikes.", spawn:"Burn around spawning cover to pull fish off beds.", summer:"Target laydowns and dock pilings in 1–4ft.", _default:"Slow your rod tip and let the bait do the work through cover." },
+    "Chatterbait":  { prespawn:"Burn over submerged grass points with a white/chartreuse trailer.", spawn:"Slow-roll through spawning flats. Pause near visible beds.", fall:"Match shad and rip through grass edges.", _default:"Add a paddle-tail swimbait trailer for extra thump." },
+    "Jig":          { prespawn:"Flip a black/blue or green pumpkin into staging cover — premier confidence bait.", spawn:"Pitch to beds — bass will eat it out of aggression.", winter:"Drag a finesse jig slowly across main-lake points.", _default:"Match trailer to forage — craw for bottom, swimbait for mid-column." },
+    "Worm":         { summer:"Texas-rig and work deep structure slowly — patience pays.", spawn:"Shaky head on the bed. Slow down more than you think.", fall:"Fish faster with a swimming worm through grass edges.", _default:"Slow down. The bite is usually on the fall or on a dead stop." },
+    "Craw":         { prespawn:"Flip heavy cover on a football jig — crawdads are the primary forage.", spawn:"Punch through matted vegetation for spawning bass.", summer:"D-rig or Carolina-rig over rocky main-lake structure.", _default:"Add a rattle for stained water, go subtle in clear water." },
+    "Swimbait":     { fall:"Match blueback herring or shad size. Work just above schooling bass.", summer:"Slow-roll a large paddle-tail over deep grass edges.", winter:"Glide bait on main-lake points — big bites only.", _default:"Match the size and color of dominant forage exactly." },
+    "Dice Bait":    { winter:"Dead-stick on a drop-shot in 20–30ft near main-lake brush.", summer:"Shake in place over bass you can see on LiveScope.", _default:"Great for finesse drop-shot or Neko rig over hard bottom in clear water." },
+    "Senko":        { spawn:"Wacky-rig weightless around beds — the slow sink drives fish crazy.", summer:"Texas-rig with a 1/16oz weight to fish docks and grass edges.", fall:"Wacky over offshore humps — often outfishes everything else.", _default:"Don't move it. The action IS the fall. Trust it." },
+    "Fluke":        { prespawn:"Walk it over spawning flats — best on a weightless Texas rig.", fall:"Match shad size and work points and pockets with slack-line twitches.", summer:"Weightless over grass mats or under docks in calm conditions.", _default:"Slack line is key — the bait dies and glides on a paused twitch." },
+    "Walking Bait": { summer:"Low-light windows at dawn — topwater bite is the most exciting in fishing.", fall:"Walk over schooling fish pushing shad to the surface.", prespawn:"Work over points and banks on warm afternoons.", _default:"Cadence matters more than speed — find the rhythm they want." },
+    "Prop Bait":    { summer:"Calm mornings over shallow grass — the chop triggers explosive strikes.", fall:"Pop-and-pause over schooling shad for surface explosions.", _default:"Let it sit completely still between twitches — the wait is deadly." }
+  };
+
+  const baitTips = baseTips[bait] || {};
+  let tip = baitTips[season] || baitTips["_default"] || "Match forage, vary presentation, slow down.";
+
+  const addons = [];
+  if (isFullNew && (bait === "Walking Bait" || bait === "Prop Bait")) addons.push("Moon phase favors a topwater bite — fish the first and last hour hard.");
+  if (isWindy && windMod.boost.includes(bait)) addons.push("Wind pushing bait — work the windward bank.");
+  if (isCalm && (bait === "Walking Bait" || bait === "Prop Bait")) addons.push("Calm water = ideal topwater surface.");
+  if (addons.length) tip += " " + addons[0];
+  return tip;
+}
+
+// ─── PRESENTATION TECHNIQUE ──────────────────────────────────────────────────
+// Returns array of { badge, type, text } steps describing how to fish the bait
+
+function getTechnique(bait, season, clarity, sky, temp, moon, wind) {
+  const isCold    = temp === "cold" || temp === "cool";
+  const isWarm    = temp === "warm" || temp === "hot";
+  const isPrime   = temp === "prime" || temp === "warming";
+  const isDark    = clarity === "muddy" || clarity === "tannic";
+  const isClear   = clarity === "clear";
+  const isLow     = sky === "lowlight" || sky === "overcast" || sky === "rainy";
+  const isBright  = sky === "sunny" || sky === "bright";
+  const isWindy   = wind === "moderate" || wind === "strong" || wind === "gale";
+  const isCalm    = wind === "calm" || wind === "light";
+  const isSpawn   = season === "spawn";
+  const isPre     = season === "prespawn";
+  const isFall    = season === "fall";
+  const isWinter  = season === "winter";
+  const isPost    = season === "postspawn";
+  const isSummer  = season === "summer" || season === "latesummer";
+  const moonLow   = moon === "new" || moon === "full";
+
+  switch(bait) {
+
+    case "Jig": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"DRAG", type:"step-primary",   text:"Drag slowly across bottom — 6 inches at a time. Cold fish won't chase. <em>Rod down, dead-slow pull.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Stop and hold for 5–10 seconds between drags. The bite often comes on the pause. <em>Watch your line.</em>" };
+        note      = { badge:"TIP",   type:"step-note",      text:"Downsize to 3/8 oz or lighter finesse jig. Smaller trailer — 3\" chunk or craw." };
+      } else if (isPre || isSpawn) {
+        primary   = { badge:"FLIP",  type:"step-primary",   text:"Pitch into staging wood, stumps, laydowns. Let it fall on a semi-slack line — <em>watch for the line jump on the fall.</em>" };
+        secondary = { badge:"SIT",   type:"step-secondary", text:"Let it sit 3–5 seconds after landing. If nothing, two short hops then drag back slow." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Work cover thoroughly — same piece 3–4 times before moving. Spawning bass are territorial." };
+      } else if (isFall) {
+        primary   = { badge:"HOP",   type:"step-primary",   text:"Aggressive 1–2 ft hops off bottom over main-lake points and channel edges. <em>Bass are active — make it look fleeing.</em>" };
+        secondary = { badge:"SWIM",  type:"step-secondary", text:"Try slow-swimming mid-column over brush — paddle-tail trailer. Let fall, reel up, repeat." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Follow schools on LiveScope — cast ahead and let it drop through the zone." };
+      } else if (isSummer) {
+        primary   = { badge:"DRAG",  type:"step-primary",   text:"Carolina-rig or football jig dragged across main-lake hard bottom at 15–25ft. <em>Slow, deliberate pull.</em>" };
+        secondary = { badge:"HOP",   type:"step-secondary", text:"Short 6\" hops along ledge breaks. Pause 2–3 sec between each. Let it telegraph bottom composition." };
+        note      = { badge:"TIP",   type:"step-note",      text:isDark ? "Bigger profile craw trailer in low-vis water." : "Smaller finesse trailer in clear water." };
+      } else {
+        primary   = { badge:"HOP",   type:"step-primary",   text:"Lift rod tip 12–18\", let fall on slack line. Repeat every 2–3 feet. <em>Most bites come on the fall.</em>" };
+        secondary = { badge:"DRAG",  type:"step-secondary", text:"When fish are sluggish, drag 6\" at a time then hold 3 sec. Let them find it." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Match hop aggression to water temp — warmer = bigger hops, colder = smaller and slower." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Craw": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"DRAG",  type:"step-primary",   text:"Dead drag on bottom — barely move it. Crawdads hibernate in cold. <em>Slow is the only speed that works.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Dead-stick 8–10 sec after every pull. Twitch in place without moving forward." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Use natural brown/green/orange colors. Downsized 3\" craw over a football jig." };
+      } else if (isPre || isSpawn) {
+        primary   = { badge:"FLIP",  type:"step-primary",   text:"Punch and flip into heavy cover — let it fall straight down on a 1 oz+ weight. <em>Crawdads are the #1 prespawn forage.</em>" };
+        secondary = { badge:"POP",   type:"step-secondary", text:"Pop it off bottom twice then let it settle. Repeat. Mimic a craw backing away." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Open claws on fall — use a bait with natural claws that flutter. Red/orange hues dominate." };
+      } else if (isSummer) {
+        primary   = { badge:"D-RIG", type:"step-primary",   text:"D-rig (drop-shot rigged nose-up) or C-rig across main-lake rock or gravel. <em>Drag 1–2 ft, pause 3 sec.</em>" };
+        secondary = { badge:"DRAG",  type:"step-secondary", text:"Slow drag along bottom contour, feeling for changes in composition — soft to hard = fish." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Green pumpkin in clear, black/blue in stain. Match craw size to what's in the lake." };
+      } else {
+        primary   = { badge:"HOP",   type:"step-primary",   text:"Short aggressive hops to mimic fleeing craw. Rod sweep 12\", drop on slack, reel up slack." };
+        secondary = { badge:"DRAG",  type:"step-secondary", text:"Mix in 2–3 slow drags between hops to cover bottom and change the look." };
+        note      = { badge:"TIP",   type:"step-note",      text:isDark ? "Add a rattle insert for low-vis water." : "Go subtle — small craw, light weight in clear water." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Worm": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"DROP",  type:"step-primary",   text:"Drop-shot rig at depth — 18–24\" leader. Shake in place with no forward movement. <em>Don't move the bait off bottom.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Let it sit 10+ seconds between tiny twitches. Winter bass are lethargic — they want it delivered." };
+        note      = { badge:"TIP",   type:"step-note",      text:"6\" finesse worm, light wire hook. 6–10 lb fluoro. Fish 20–30ft structure." };
+      } else if (isSpawn) {
+        primary   = { badge:"SHAKE", type:"step-primary",   text:"Shaky head on or near the bed — shake in place without moving. <em>Bass will eventually eat it out of aggression.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Dead-stick after every shake. 5–8 second holds. Let the bass commit." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Natural colors — green pumpkin, watermelon. 10–20 lb braid to 12 lb fluoro leader." };
+      } else if (isFall || isPre) {
+        primary   = { badge:"SWIM",  type:"step-primary",   text:"Swimming worm on a light bullet weight — slow steady retrieve just above grass or structure. <em>Active fish respond fast.</em>" };
+        secondary = { badge:"HOP",   type:"step-secondary", text:"Break up the swim with a couple of hops then let it glide back down. Irregular action triggers reaction." };
+        note      = { badge:"TIP",   type:"step-note",      text:"10\" ribbontail swum fast or 7\" paddle-tail worm. Match the profile of baitfish in the water." };
+      } else if (isSummer) {
+        primary   = { badge:"T-RIG", type:"step-primary",   text:"Texas-rig with 1/4–3/8 oz bullet weight on deep structure. Cast, count down, drag slowly. <em>Bottom contact is key.</em>" };
+        secondary = { badge:"HOP",   type:"step-secondary", text:"Lift 12\" off bottom, reel in slack, drop. Watch for the line to stop or tick on the fall." };
+        note      = { badge:"TIP",   type:"step-note",      text:isCalm ? "Clear water — go lighter and longer. 10 lb fluoro, 7\" natural worm." : "Bump up to 15 lb in stained water." };
+      } else {
+        primary   = { badge:"T-RIG", type:"step-primary",   text:"Drag slowly along bottom contour. Lift 6–12\", pause 2 sec, drop. <em>Repeat until you find the strike zone depth.</em>" };
+        secondary = { badge:"SHAKE", type:"step-secondary", text:"Shake in place over any hard spot — rock, shell, wood — bass hold on transitions." };
+        note      = { badge:"TIP",   type:"step-note",      text:"7\" worm in green pumpkin or watermelon. Step down to 4\" finesse worm if they short-strike." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Senko": {
+      let primary, secondary, note;
+      if (isSpawn) {
+        primary   = { badge:"WACKY", type:"step-primary",   text:"Wacky-rig weightless — cast to bed, do nothing. <em>Let it flutter and sink on slack line. Kills 'em.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Dead-stick 5–10 seconds on bottom. If ignored, pop it up 6\" and let it fall again." };
+        note      = { badge:"TIP",   type:"step-note",      text:"O-ring wacky rig to save baits. 4\" or 5\" in natural colors. Light wire wacky hook." };
+      } else if (isWinter || isCold) {
+        primary   = { badge:"NEKO",  type:"step-primary",   text:"Neko rig with nail weight in nose — sticks up off bottom and shakes. <em>Twitch in place, 3 sec pause.</em>" };
+        secondary = { badge:"DROP",  type:"step-secondary", text:"Drop-shot a Senko nose-hooked at 18\" leader. Subtle shake, long pauses." };
+        note      = { badge:"TIP",   type:"step-note",      text:"4\" in green pumpkin or natural shad. Fish 15–25ft deep structure." };
+      } else if (isSummer) {
+        primary   = { badge:"T-RIG", type:"step-primary",   text:"Texas-rig with 1/16–1/8 oz weight along grass edges and dock corners. <em>Slow sink, let it fall into shadows.</em>" };
+        secondary = { badge:"WACKY", type:"step-secondary", text:"Weightless wacky over submerged grass — let it wobble down through the canopy." };
+        note      = { badge:"TIP",   type:"step-note",      text:"5\" is the money size in summer. Watermelon seed or green pumpkin with red flake." };
+      } else if (isFall) {
+        primary   = { badge:"WACKY", type:"step-primary",   text:"Wacky-rig over offshore humps and channel bends — cast out, count down to depth, twitch twice, pause." };
+        secondary = { badge:"SWIM",  type:"step-secondary", text:"Nose-hook weightless and swim slowly just off bottom. Erratic, dying-shad action." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Match shad colors in fall — natural shad, ghost, albino. 5\" size." };
+      } else {
+        primary   = { badge:"WACKY", type:"step-primary",   text:"Weightless wacky cast to cover — <em>do nothing.</em> The action IS the fall. Resist the urge to move it." };
+        secondary = { badge:"T-RIG", type:"step-secondary", text:"Texas-rig with light bullet weight if wind or depth requires. Slow drag, long pauses." };
+        note      = { badge:"TIP",   type:"step-note",      text:"5\" Senko is the classic. Always rig weedless. Natural colors in clear, darker in stain." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Spinnerbait": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"SLOW",  type:"step-primary",   text:"Slow-roll just above bottom at crawl speed. <em>Barely keep the blades spinning.</em> Single Colorado blade." };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Let it flutter to bottom, reel a few turns, pause again. Flutter fall triggers cold-fish reaction bites." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Bigger blade for more thump and vibration in cold water. White or chartreuse." };
+      } else if (isPre || isSpawn) {
+        primary   = { badge:"ROLL",  type:"step-primary",   text:"Slow-roll over pre-spawn staging points at 5–10ft. Parallel the bank, tick the bottom occasionally." };
+        secondary = { badge:"BURN",  type:"step-secondary", text:"Burn it just under the surface over flats — reaction bite from active fish." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Tandem willow in white/chartreuse or white/white. 3/8–1/2 oz." };
+      } else if (isFall) {
+        primary   = { badge:"BURN",  type:"step-primary",   text:"Fast retrieve matching the shad schools — burn a double willow just under the surface. <em>Match the speed of fleeing baitfish.</em>" };
+        secondary = { badge:"KILL",  type:"step-secondary", text:"\"Kill\" the bait — stop reeling and let it flutter down. Deadly right after a missed strike." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Shad-colored with silver blades in clear water. Chartreuse in stain." };
+      } else if (isWindy) {
+        primary   = { badge:"ROLL",  type:"step-primary",   text:"Slow-roll along windward bank where bait is being pushed. <em>Work into the wind blow — fish stack there.</em>" };
+        secondary = { badge:"BURN",  type:"step-secondary", text:"Speed up the retrieve as you cross wind lines where bait is concentrated." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Heavier 1/2–3/4 oz for casting in wind. White/chartreuse for choppy water visibility." };
+      } else {
+        primary   = { badge:"ROLL",  type:"step-primary",   text:"Medium retrieve — blades spinning steadily at 3–5ft depth. Keep contact with structure and cover." };
+        secondary = { badge:"DEFLCT",type:"step-secondary", text:"Crash into cover intentionally — deflecting off wood or rock triggers reaction strikes." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Vary blade size and retrieve speed on every cast until you find what triggers a response." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Rattletrap": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"YO-YO", type:"step-primary",   text:"Cast out, let it sink to bottom. Rip rod up sharply, reel slack as it falls back. <em>Repeat — the rip triggers reaction.</em>" };
+        secondary = { badge:"DEAD",  type:"step-secondary", text:"Let it sit on bottom 3–5 seconds between rips. Cold bass need extra time to commit." };
+        note      = { badge:"TIP",   type:"step-note",      text:"1/2 oz in shad or ghost. Find the deepest brush pile on main lake — fish suspend over it." };
+      } else if (isFall) {
+        primary   = { badge:"BURN",  type:"step-primary",   text:"Parallel the bank burning it through schooling shad at or just above their depth. <em>Match the frenzied baitfish speed.</em>" };
+        secondary = { badge:"REEL",  type:"step-secondary", text:"Count it down to depth, reel at a medium-fast pace. Bang it off anything — rocks, stumps, docks." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Follow the birds and the surface busts. Cast past them and retrieve through the school." };
+      } else if (isPre) {
+        primary   = { badge:"BANG",  type:"step-primary",   text:"Cast tight to wood and rock, bang off structure on retrieve. <em>Deflection strikes are brutal — fish don't think, they react.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Stop the bait after a deflection and let it flutter. Pause 1–2 sec before resuming retrieve." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Chrome/blue or shad in clear water. Chartreuse/black in stain." };
+      } else {
+        primary   = { badge:"CAST",  type:"step-primary",   text:"Count down to the strike zone. Steady medium retrieve. <em>Vary depth each cast until you find where they're sitting.</em>" };
+        secondary = { badge:"REEL",  type:"step-secondary", text:"Speed up when near structure. Slow to a flutter over open water flats." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Replace factory hooks with sharp short-shank trebles. Rattletrap hooks are notoriously dull." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Crankbait": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"CRAWL", type:"step-primary",   text:"Slow-roll the crankbait on bottom — barely moving. <em>Cold bass need it in their face before they'll commit.</em>" };
+        secondary = { badge:"STOP",  type:"step-secondary", text:"Stop-and-go retrieve — reel 3 turns, pause 3 seconds. Pause often = more bites." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Flat-sided crankbait for subtle action. Shad, ghost, or albino colors. Suspend bait if possible." };
+      } else if (isPre) {
+        primary   = { badge:"DEFLCT",type:"step-primary",   text:"Target first breakline at depth of the bait's max dive. <em>Crash it off every rock, stump, and dock piling.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Short pause after each deflection — 1 sec — then resume. The reaction bite comes immediately after impact." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Match dive depth to water depth. Pick a crankbait that consistently ticks bottom on your retrieve." };
+      } else if (isFall) {
+        primary   = { badge:"SWEEP", type:"step-primary",   text:"Long casts parallel to points and channel swings. Medium-fast sweep, keeping it in the strike zone." };
+        secondary = { badge:"REEL",  type:"step-secondary", text:"Steady retrieve through baitfish schools at their depth. No pauses — commit to the speed." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Match bait size and profile to dominant forage. Shad-pattern running at 8–12ft." };
+      } else if (isSummer) {
+        primary   = { badge:"DEEP",  type:"step-primary",   text:"Deep-diving crankbait on ledges and channel edges — 10–20 cranks to get it down, steady retrieve along bottom. <em>Long cast = more time in the zone.</em>" };
+        secondary = { badge:"DRAG",  type:"step-secondary", text:"After cast, point rod at the water and reel with the rod tip submerged to maximize depth." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Football-crank over hard structure. 12–17 lb fluoro — it sinks and adds depth." };
+      } else {
+        primary   = { badge:"DEFLCT",type:"step-primary",   text:"Target hard structure — rocks, wood, docks. Bounce it off everything. <em>Deflection is the strike trigger.</em>" };
+        secondary = { badge:"VARY",  type:"step-secondary", text:"Mix steady retrieves with stop-and-go to find what they want. Change cadence on every third cast." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Rod angle controls depth — rod tip down dives deeper, rod up runs shallower." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Squarebill": {
+      let primary, secondary, note;
+      if (isPre || isSpawn) {
+        primary   = { badge:"CRASH", type:"step-primary",   text:"Throw tight to cover — wood, docks, rocks. <em>Intentionally make it crash and deflect. That IS the technique.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"After deflection off cover, pause 0.5–1 sec before continuing. Bass track it and the pause seals the deal." };
+        note      = { badge:"TIP",   type:"step-note",      text:"1/2 oz Squarebill in shallow 1–4ft wood cover. Braided line with fluoro leader to stay weedless." };
+      } else if (isSummer) {
+        primary   = { badge:"DOCK",  type:"step-primary",   text:"Skip under docks and laydowns in 1–4ft. Retrieve erratically back through the shade. <em>Bass suspend in cover to escape heat.</em>" };
+        secondary = { badge:"SLOW",  type:"step-secondary", text:"Slow-roll near bottom in the shade — especially effective under floating docks on hot days." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Chartreuse/black or shad depending on clarity. Back off on rod tip — let the bait wobble freely." };
+      } else if (isWindy) {
+        primary   = { badge:"BURN",  type:"step-primary",   text:"Burn it along windward banks — wind blows bait into shorelines and Squarebill burns through them." };
+        secondary = { badge:"DEFLCT",type:"step-secondary", text:"Bang every stump, rock, and piling on the windward bank." };
+        note      = { badge:"TIP",   type:"step-note",      text:"High-vis chartreuse/white in choppy water. Heavier 1/2 oz for casting distance into wind." };
+      } else {
+        primary   = { badge:"CRASH", type:"step-primary",   text:"Medium-fast retrieve through and into shallow cover. <em>Never avoid structure — aim for it.</em>" };
+        secondary = { badge:"VARY",  type:"step-secondary", text:"Occasionally pause mid-retrieve near cover — bass following it will commit on the stop." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Loosen your drag slightly — Squarebill bites are violent and a locked drag loses fish." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Chatterbait": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"SLOW",  type:"step-primary",   text:"Slow-roll barely above bottom — just fast enough to keep the blade chattering. <em>Cold fish won't run it down.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Dead-stop pause — blade collapses, then chatters back to life on the next pull. That restart triggers bites." };
+        note      = { badge:"TIP",   type:"step-note",      text:"3/8 oz with a straight swimbait trailer. Chartreuse/white or white/white." };
+      } else if (isPre || isSpawn) {
+        primary   = { badge:"BURN",  type:"step-primary",   text:"Fast burn over submerged grass flats and points — <em>bass aggressively chase prespawn. Make them react.</em>" };
+        secondary = { badge:"REEL",  type:"step-secondary", text:"Medium retrieve along the grass edge — pause at every gap in the grass and let it fall in." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Chartreuse/white with a paddle-tail trailer in stain. Shad/white in clear." };
+      } else if (isFall) {
+        primary   = { badge:"RIP",   type:"step-primary",   text:"Rip through grass edges — fast reel, hard rip, pause. <em>Fall bass are aggressive and key on fleeing shad.</em>" };
+        secondary = { badge:"SWIM",  type:"step-secondary", text:"Swim steadily just over submerged vegetation — parallel grass lines at the depth they're holding." };
+        note      = { badge:"TIP",   type:"step-note",      text:"1/2 oz for distance in fall. Shad/white or chartreuse. Add a curly tail for more action." };
+      } else if (isWindy) {
+        primary   = { badge:"CAST",  type:"step-primary",   text:"Cast into the wind toward windward banks — retrieve with the current push. <em>Bass stack on blown-in bait.</em>" };
+        secondary = { badge:"VARY",  type:"step-secondary", text:"Vary retrieve speed every few casts — fast burn, slow roll, fast burn again. Wind makes fish aggressive." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Up to 3/4 oz for long casts in wind. White/chartreuse for visibility in chop." };
+      } else {
+        primary   = { badge:"SWIM",  type:"step-primary",   text:"Steady medium retrieve — keep it in the strike zone at consistent depth. <em>Even cadence is key.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Add an occasional pause — let it fall 1–2 seconds — especially near visible cover or grass edges." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Trailer choice matters: paddle tail = more thump, straight tail = subtle. Match to fish mood." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Swimbait": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"GLIDE", type:"step-primary",   text:"Large glide bait — cast to main-lake point, slow sweep and pause. <em>Let it glide on slack line. Big bait = big fish only.</em>" };
+        secondary = { badge:"SLOW",  type:"step-secondary", text:"Paddle-tail swimbait slow-rolled barely above deep brush — one rotation per second or slower." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Go big and slow — 6–10\" swimbait. Only quality bites but they'll be giants. Ghost/shad colors." };
+      } else if (isFall) {
+        primary   = { badge:"MATCH", type:"step-primary",   text:"Match shad or herring size and depth exactly. Cast past schools, retrieve through them at their speed. <em>Be the bait, not near it.</em>" };
+        secondary = { badge:"REEL",  type:"step-secondary", text:"Steady medium retrieve just above bottom or just above the school. No action needed — straight reel." };
+        note      = { badge:"TIP",   type:"step-note",      text:"4–6\" paddle tail in shad/white/pearl. Follow birds and surface schooling — cast ahead of the melee." };
+      } else if (isSummer) {
+        primary   = { badge:"DEEP",  type:"step-primary",   text:"Slow-roll a large paddle-tail over deep offshore grass edges — just fast enough to keep the tail kicking. <em>Belly down, nose-hook, slow retrieve.</em>" };
+        secondary = { badge:"LIFT",  type:"step-secondary", text:"Lift and glide — reel to depth, lift rod, let it glide back down. Fish often hit on the fall." };
+        note      = { badge:"TIP",   type:"step-note",      text:"5–8\" in shad, bluegill, or green pumpkin. Weighted hook at 1/4–3/8 oz." };
+      } else if (isCalm && isBright) {
+        primary   = { badge:"SLOW",  type:"step-primary",   text:"Slow-roll along visible structure in clear water — <em>bass can see it from far. Go subtle, go slow, go natural colors.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Pause near cover transitions. Clear water fish inspect baits — a pause lets them commit." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Natural-finish swimbait in clear water. Smaller 3–4\" in high-pressure clear conditions." };
+      } else {
+        primary   = { badge:"REEL",  type:"step-primary",   text:"Steady retrieve — keep the tail kicking consistently. <em>Find the depth the fish are holding and stay there.</em>" };
+        secondary = { badge:"VARY",  type:"step-secondary", text:"Change retrieve speeds until the pattern emerges — then repeat it on every cast." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Match local forage size. 4\" in pressured water, 6\"+ when fish are active." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Fluke": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"SLOW",  type:"step-primary",   text:"Weighted fluke on a shaky head — slow drag along bottom. Nearly as effective as a worm in cold. <em>Dying shad imitation.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Twitch once, pause 5–8 seconds. In cold water, the pause must be painfully long." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Ghost/shad in clear water. Keep it near bottom or brush where fish stage." };
+      } else if (isPre || isSpawn) {
+        primary   = { badge:"WALK",  type:"step-primary",   text:"Weightless Texas-rig over spawning flats — slack-line twitch, twitch, pause. <em>Let it die and glide on the pause.</em>" };
+        secondary = { badge:"DART",  type:"step-secondary", text:"Sharp 12\" darts side to side — injured baitfish look. Pause 3 sec between darts." };
+        note      = { badge:"TIP",   type:"step-note",      text:"3/0 EWG hook, no weight. Ghost, white, or shad. Fluorocarbon for low-vis presentation." };
+      } else if (isFall) {
+        primary   = { badge:"TWITCH",type:"step-primary",   text:"Match shad size — twitch-twitch-pause over points. <em>Bass are ambushing shad. Make yours look wounded.</em>" };
+        secondary = { badge:"REEL",  type:"step-secondary", text:"Slow steady retrieve just under the surface over schooling fish — then stop it." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Shad/white/albino colors. Work edges of points and channel bends where schools stack." };
+      } else if (isCalm) {
+        primary   = { badge:"GLIDE", type:"step-primary",   text:"Weightless under docks and over mats — cast in, twitch twice, let it glide on slack line. <em>Slack line = maximum action on the pause.</em>" };
+        secondary = { badge:"SWIM",  type:"step-secondary", text:"Slow swim through grass pockets — retrieve at a crawl just above the canopy." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Calm days reward finesse. 8 lb fluoro, light hook, no weight. Natural colors." };
+      } else {
+        primary   = { badge:"TWITCH",type:"step-primary",   text:"Slack-line twitches — rod sweeps sideways 12–18\", reel in slack, pause 2–3 sec. <em>The bait darts and dies.</em>" };
+        secondary = { badge:"DART",  type:"step-secondary", text:"For more aggressive action, sharp upward rod pop — bait darts erratically like a fleeing shad." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Slack line is everything with a Fluke. Any tension kills the action on the pause." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Dice Bait": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        primary   = { badge:"DROP",  type:"step-primary",   text:"Drop-shot at 20–30ft on main-lake brush — 18–24\" leader. <em>Shake in place with zero forward movement. Don't move it off the spot.</em>" };
+        secondary = { badge:"DEAD",  type:"step-secondary", text:"Dead-stick 10+ seconds between shakes. Cold fish study the bait — give them time." };
+        note      = { badge:"TIP",   type:"step-note",      text:"3/32 oz dropshot weight, size 2 finesse hook. 6 lb fluorocarbon. Stay vertical if possible." };
+      } else if (isSpawn) {
+        primary   = { badge:"BED",   type:"step-primary",   text:"Drop-shot onto visible beds — shake in place without moving the bait. <em>Aggression bites, not feeding bites.</em>" };
+        secondary = { badge:"NEKO",  type:"step-secondary", text:"Neko rig — nail weight in nose, light wire hook in back half. Shakes upright. Pop and let settle." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Natural green pumpkin or watermelon. Fluorocarbon only — no line shadow in clear shallow water." };
+      } else if (isSummer) {
+        primary   = { badge:"SCOPE", type:"step-primary",   text:"Use LiveScope to position over fish, then drop vertically. <em>Shake in place over the exact fish — don't move it, let them come to it.</em>" };
+        secondary = { badge:"DROP",  type:"step-secondary", text:"Traditional drop-shot along ledge breaks — methodically drag 2–3 ft, pause and shake, repeat." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Green pumpkin, watermelon red, or natural shad. 3–4\" profile. Light action spinning rod." };
+      } else {
+        primary   = { badge:"DROP",  type:"step-primary",   text:"Drop-shot along hard bottom and transitions — drag 12\", pause and shake 3x, drag again. <em>Systematic and slow.</em>" };
+        secondary = { badge:"NEKO",  type:"step-secondary", text:"Neko rig on hard bottom — pop the rod tip, let it settle, repeat. Stands up on bottom between pops." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Best in clear water. Go lighter in pressure — smaller hook, thinner leader, natural colors." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Walking Bait": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        return [
+          { badge:"SKIP",  type:"step-primary",   text:"Walking baits are largely ineffective in cold water. Bass won't come to the surface when lethargic. <em>Switch to a deeper presentation.</em>" },
+          { badge:"TRY",   type:"step-secondary", text:"If committed: dead-slow walk-the-dog in calm water at dawn. Very long pauses — 5+ sec between twitches." },
+          { badge:"TIP",   type:"step-note",      text:"Only worth trying if surface temp is 55°F+ and you see visible fish movement near the surface." }
+        ];
+      } else if (moonLow || isLow) {
+        primary   = { badge:"WALK",  type:"step-primary",   text:"Walk-the-dog at dawn during the moon/low-light window — steady side-to-side cadence, <em>rod tip down, slack in the line between twitches.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Kill it on any swirl or boil near the bait — 2–3 second pause then restart. Don't jerk when you see a boil." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Be on the water at first light. Moon/low-light bite windows are short — 45 mins max. Work fast." };
+      } else if (isFall) {
+        primary   = { badge:"CAST",  type:"step-primary",   text:"Cast past surfacing schooling fish — walk it through the school. <em>Fast cadence to match frenzied shad.</em>" };
+        secondary = { badge:"VARY",  type:"step-secondary", text:"Change cadence: fast, then slow, then pause. Erratic = reaction bites from bass tracking the school." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Follow the birds. Cast beyond them, walk through — never cast into the middle of a school." };
+      } else if (isCalm) {
+        primary   = { badge:"WALK",  type:"step-primary",   text:"Slow rhythmic walk-the-dog on slick calm water — <em>steady left-right cadence. Every twitch moves the nose side to side.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Extended pause over target zone — 3–5 seconds. Calm fish study the bait and nail it on the sit." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Slack line between rod twitches is critical — too tight = no action. Reel only to keep slack managed." };
+      } else {
+        primary   = { badge:"WALK",  type:"step-primary",   text:"Walk-the-dog: rod tip down, rhythmic wrist twitches — bait walks left, right, left. <em>Keep the cadence consistent.</em>" };
+        secondary = { badge:"PAUSE", type:"step-secondary", text:"Pause near structure, shade lines, and grass edges. The stop-and-sit triggers following fish." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Braided line with long mono/fluoro leader for action. Practice cadence — rhythm matters more than speed." };
+      }
+      return [primary, secondary, note];
+    }
+
+    case "Prop Bait": {
+      let primary, secondary, note;
+      if (isWinter || isCold) {
+        return [
+          { badge:"SKIP",  type:"step-primary",   text:"Prop baits aren't effective in cold water — bass won't blow up on surface noise when water is below 55°F." },
+          { badge:"TRY",   type:"step-secondary", text:"Last resort: extremely slow twitch-pause on calm mornings only. 8–10 sec pause between twitches." },
+          { badge:"TIP",   type:"step-note",      text:"Consider a Rattletrap or finesse jig instead. Save the prop bait for warmer conditions." }
+        ];
+      } else if (isCalm) {
+        primary   = { badge:"POP",   type:"step-primary",   text:"Single twitch — let it sit completely still. <em>8–10 second pause. Then one twitch. Repeat.</em> Calm fish inspect and blow up on the pause." };
+        secondary = { badge:"CHURN", type:"step-secondary", text:"Two quick twitches to churn the props, then dead-stop. The gurgle-then-silence mimics a dying baitfish." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Glass water mornings = best prop bait conditions ever. White, bone, or chrome." };
+      } else if (moonLow || isLow) {
+        primary   = { badge:"CHURN", type:"step-primary",   text:"Two-twitch churn with a 5 sec pause — props throw water and noise in low light. <em>Louder retrieve during dawn/dusk feeding window.</em>" };
+        secondary = { badge:"WALK",  type:"step-secondary", text:"\"Walk\" a twin-prop bait side to side — slower than a stickbait but with more surface commotion." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Louder props in low light. Chrome or black for silhouette. Fish the feeding window hard — 45 mins." };
+      } else if (isFall) {
+        primary   = { badge:"POP",   type:"step-primary",   text:"Pop-and-pause over schooling shad — cast past the school, pop twice, pause 3 sec, repeat through the school." };
+        secondary = { badge:"BURN",  type:"step-secondary", text:"Faster churn retrieve through surface-breaking fish — 3 quick twitches, 1 sec pause." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Shad or chrome colors. Always cast beyond the school and retrieve through it — never bomb the middle." };
+      } else {
+        primary   = { badge:"POP",   type:"step-primary",   text:"Single twitch, long pause. <em>Let it sit still until the ripples die. Then twitch again.</em> Patience is the entire technique." };
+        secondary = { badge:"VARY",  type:"step-secondary", text:"Try a 3-twitch churn if slow isn't getting bites — makes more commotion to call fish from a distance." };
+        note      = { badge:"TIP",   type:"step-note",      text:"Keep the bait in target zones (shade, grass edges, docks) as long as possible. Don't rush the retrieve." };
+      }
+      return [primary, secondary, note];
+    }
+
+    default:
+      return [
+        { badge:"WORK",  type:"step-primary",   text:"Vary your retrieve speed and cadence until bass respond. Start slow in cold water, faster in warm." },
+        { badge:"PAUSE", type:"step-secondary", text:"Most bites happen on a pause or direction change — incorporate frequent stops." },
+        { badge:"TIP",   type:"step-note",      text:"Match your retrieve to the energy level of the fish — lethargic fish need slow, active fish reward speed." }
+      ];
+  }
+}
+
+// ─── INSIGHT STRIP ───────────────────────────────────────────────────────────
+
+function updateInsights() {
+  const moon = document.getElementById("moon").value;
+  const wind = document.getElementById("wind").value;
+  const moonMod = getMoonModifiers(moon);
+  const windMod = getWindModifiers(wind);
+  const strip = document.getElementById("insightStrip");
+  const moonEmoji = MOON_LABELS[moon].split(" ").pop();
+
+  let pills = "";
+  pills += `<div class="insight-pill ${moonMod.feedingWindow ? 'active-moon' : ''}">
+    ${moonEmoji} ${MOON_LABELS[moon].replace(/ [🌑🌒🌓🌔🌕🌖🌗🌘]/,"")}: ${moonMod.feedingWindow ? "🔥 Peak feeding window" : "Normal activity"}
+  </div>`;
+
+  pills += `<div class="insight-pill ${windMod.severe ? 'warn-wind' : windMod.colorShift ? 'active-wind' : ''}">
+    💨 ${WIND_LABELS[wind]}: ${windMod.severe ? "⚠️ Seek shelter" : windMod.colorShift ? "High-vis colors boost" : "Standard conditions"}
+  </div>`;
+
+  if (moonMod.boost.length) {
+    pills += `<div class="insight-pill active-moon">⭐ Moon favors: ${moonMod.boost.slice(0,3).join(", ")}</div>`;
+  }
+  if (windMod.avoid.length) {
+    pills += `<div class="insight-pill warn-wind">🚫 Tough in wind: ${windMod.avoid.slice(0,3).join(", ")}</div>`;
+  }
+
+  strip.innerHTML = pills;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+
+const BAITS = [
+  "Spinnerbait","Rattletrap","Crankbait","Squarebill","Chatterbait",
+  "Jig","Worm","Craw","Swimbait","Dice Bait","Senko","Fluke","Walking Bait","Prop Bait"
+];
+
+function confClass(c) { return c==="high"?"conf-high":c==="medium"?"conf-med":"conf-low"; }
+function confWidth(c) { return c==="high"?"92%":c==="medium"?"65%":"38%"; }
+
+function generate() {
+  const sky     = document.getElementById("sky").value;
+  const season  = document.getElementById("season").value;
+  const clarity = document.getElementById("clarity").value;
+  const temp    = document.getElementById("temp").value;
+  const moon    = document.getElementById("moon").value;
+  const wind    = document.getElementById("wind").value;
+  const windMod = getWindModifiers(wind);
+  const moonMod = getMoonModifiers(moon);
+  const moonEmoji = MOON_LABELS[moon].split(" ").pop();
+
+  document.getElementById("contextBanner").innerHTML =
+    `<strong>${SKY_LABELS[sky]}</strong> · <strong>${SEASON_LABELS[season]}</strong> · <strong>${CLARITY_LABELS[clarity]}</strong> · <strong>${TEMP_LABELS[temp]}</strong><br>
+     <span class="moon-note">${moonEmoji} ${MOON_LABELS[moon].replace(/ [🌑🌒🌓🌔🌕🌖🌗🌘]/,"")}: ${moonMod.notes}</span><br>
+     <span class="${windMod.severe?'wind-warn':'wind-note'}">💨 ${WIND_LABELS[wind]}: ${windMod.notes}</span><br>
+     <span style="color:var(--muted);font-size:0.82rem;">Colors ranked highest-confidence first · moon &amp; wind modifiers shown per bait</span>`;
+
+  const grid = document.getElementById("baitsGrid");
+  grid.innerHTML = "";
+
+  BAITS.forEach((bait, i) => {
+    const colorKeys  = pickColors(bait, sky, season, clarity, temp, moon, wind);
+    const confidence = getConfidence(bait, season, temp, moon, wind);
+    const tip        = getTip(bait, season, sky, temp, moon, wind);
+    const technique  = getTechnique(bait, season, clarity, sky, temp, moon, wind);
+    const isTop      = confidence === "high";
+    const moonBoost  = moonMod.boost.includes(bait);
+    const windBoost  = windMod.boost.includes(bait);
+    const windAvoid  = windMod.avoid.includes(bait);
+
+    const card = document.createElement("div");
+    card.className = `bait-card${isTop ? " top-pick" : ""}`;
+    card.style.animationDelay = `${i * 35}ms`;
+
+    const colorTagsHTML = colorKeys.map(k => {
+      const c = COLORS[k]; if(!c) return "";
+      return `<span class="color-tag"><span class="color-dot" style="background:${c.hex}"></span>${c.name}</span>`;
+    }).join("");
+
+    let modTags = "";
+    if (moonBoost)  modTags += `<span class="mod-tag mod-moon">${moonEmoji} Moon Bite</span>`;
+    if (windBoost)  modTags += `<span class="mod-tag mod-wind">💨 Wind Favored</span>`;
+    if (windAvoid)  modTags += `<span class="mod-tag mod-windwarn">💨 Tough in Wind</span>`;
+
+    const techniqueHTML = technique.map(s => `
+      <div class="technique-step">
+        <span class="step-badge ${s.type}">${s.badge}</span>
+        <span class="step-text">${s.text}</span>
+      </div>`).join("");
+
+    card.innerHTML = `
+      <div class="bait-header">
+        <span class="bait-icon">${BAIT_ICONS[bait]||"🎣"}</span>
+        <span class="bait-name">${bait}</span>
+        ${isTop ? '<span class="top-pick-badge">⭐ Top Pick</span>' : ""}
+      </div>
+      <div class="bait-body">
+        <div class="confidence-bar">
+          <div class="confidence-fill ${confClass(confidence)}" style="width:${confWidth(confidence)}"></div>
+        </div>
+        ${modTags ? `<div class="modifier-tags">${modTags}</div>` : ""}
+        <div class="color-tags">${colorTagsHTML}</div>
+        <div class="bait-tip">${tip}</div>
+        <div class="technique-section">
+          <div class="technique-label">🎯 How to Fish It</div>
+          <div class="technique-steps">${techniqueHTML}</div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  const results = document.getElementById("results");
+  results.style.display = "block";
+  results.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// Init on load
+updateInsights();
+</script>
+</body>
+</html>
