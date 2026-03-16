@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bait Color Selector</title>
+<title>Bait Selector</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -266,6 +266,8 @@
   .mod-moon     { background: rgba(200,180,100,0.15); color: #d4bc60; border: 1px solid rgba(200,180,100,0.3); }
   .mod-wind     { background: rgba(74,158,221,0.12);  color: var(--accent3); border: 1px solid rgba(74,158,221,0.3); }
   .mod-windwarn { background: rgba(199,75,42,0.12);   color: #e06040; border: 1px solid rgba(199,75,42,0.3); }
+  .mod-cover      { background: rgba(58,140,110,0.15); color: #5ec490; border: 1px solid rgba(58,140,110,0.35); }
+  .mod-coveravoid { background: rgba(120,80,40,0.15);  color: #c49060; border: 1px solid rgba(120,80,40,0.35); }
 
   .color-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 9px; }
   .color-tag {
@@ -334,6 +336,43 @@
     line-height: 1.45;
   }
   .step-text em { color: var(--muted); font-style: normal; }
+
+  /* COVER SELECTOR */
+  .cover-row {
+    margin-bottom: 14px;
+  }
+  .cover-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cover-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .cover-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .cover-btn.active {
+    background: rgba(232,160,32,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .cover-btn .cover-icon { font-size: 1rem; }
 </style>
 </head>
 <body>
@@ -424,6 +463,20 @@
 
   <div class="insight-strip" id="insightStrip"></div>
 
+  <div class="cover-row">
+    <p class="section-label">Primary Cover <span style="font-size:0.65rem;letter-spacing:2px;color:var(--muted);font-weight:400;margin-left:6px;">— pick up to 3</span></p>
+    <div class="cover-toggles" id="coverToggles">
+      <button class="cover-btn active" data-cover="timber"   onclick="toggleCover(this)"><span class="cover-icon">🪵</span> Timber</button>
+      <button class="cover-btn"        data-cover="rock"     onclick="toggleCover(this)"><span class="cover-icon">🪨</span> Rock / Hard Bottom</button>
+      <button class="cover-btn"        data-cover="grass"    onclick="toggleCover(this)"><span class="cover-icon">🌿</span> Grass / Weeds</button>
+      <button class="cover-btn"        data-cover="mats"     onclick="toggleCover(this)"><span class="cover-icon">🍃</span> Mats / Slop</button>
+      <button class="cover-btn"        data-cover="docks"    onclick="toggleCover(this)"><span class="cover-icon">⚓</span> Docks / Piers</button>
+      <button class="cover-btn"        data-cover="open"     onclick="toggleCover(this)"><span class="cover-icon">🌊</span> Open Water</button>
+      <button class="cover-btn"        data-cover="brush"    onclick="toggleCover(this)"><span class="cover-icon">🌾</span> Brush Piles</button>
+      <button class="cover-btn"        data-cover="riprap"   onclick="toggleCover(this)"><span class="cover-icon">🧱</span> Riprap</button>
+    </div>
+  </div>
+
   <button class="run-btn" onclick="generate()">⚡ SHOW MY COLORS</button>
 
   <div id="results">
@@ -436,6 +489,111 @@
 
 <script>
 // ─── LOOKUP DATA ─────────────────────────────────────────────────────────────
+
+// ─── COVER ───────────────────────────────────────────────────────────────────
+
+let activeCovers = ["timber"]; // array, max 3
+
+function toggleCover(btn) {
+  const cover = btn.dataset.cover;
+  const idx = activeCovers.indexOf(cover);
+  if (idx > -1) {
+    // deselect — but always keep at least 1
+    if (activeCovers.length > 1) {
+      activeCovers.splice(idx, 1);
+      btn.classList.remove("active");
+    }
+  } else {
+    if (activeCovers.length >= 3) {
+      // deselect the oldest pick
+      const oldest = activeCovers.shift();
+      document.querySelector(`.cover-btn[data-cover="${oldest}"]`).classList.remove("active");
+    }
+    activeCovers.push(cover);
+    btn.classList.add("active");
+  }
+}
+
+function getMergedCoverData(covers) {
+  // Merge boost/avoid across all selected covers
+  // boost = union of all boosts; avoid = only baits avoided in ALL selected covers (consensus avoid)
+  const allData = covers.map(c => getCoverData(c));
+  const boostSet = new Set(allData.flatMap(d => d.boost));
+  // avoid only if avoided in every selected cover
+  const avoidSets = allData.map(d => new Set(d.avoid));
+  const avoidAll  = [...avoidSets[0]].filter(b => avoidSets.every(s => s.has(b)));
+  // remove anything that's in any boost
+  const finalAvoid = avoidAll.filter(b => !boostSet.has(b));
+  const colorNotes = allData.map(d => d.colorNotes).join(" ");
+  const structureNotes = allData.map((d,i) => `${COVER_ICONS[covers[i]]} ${COVER_LABELS[covers[i]]}: ${d.structureNote}`).join("<br>");
+  return { boost: [...boostSet], avoid: finalAvoid, colorNotes, structureNote: structureNotes };
+}
+
+function getCoverData(cover) {
+  // Returns { boostBaits, avoidBaits, colorNotes, structureNote }
+  const data = {
+    timber: {
+      boost:  ["Jig","Squarebill","Chatterbait","Spinnerbait","Craw","Worm","Senko","Frog"],
+      avoid:  ["Ned Rig","Damiki Rig","Crankbait"],
+      colorNotes: "Natural crawdad colors dominate around wood. Green pumpkin, brown orange, black/blue in stained water.",
+      structureNote: "Target the base of stumps, laydown root balls, and dock pilings. Bass pin bait against wood — present parallel, not perpendicular."
+    },
+    rock: {
+      boost:  ["Jig","Craw","Ned Rig","Crankbait","Rattletrap","Squarebill","Damiki Rig"],
+      avoid:  ["Frog","Buzz Bait"],
+      colorNotes: "Crawdad patterns excel on rock — crawdad orange, natural craw, green pumpkin. Shad on main-lake rock ledges.",
+      structureNote: "Drag baits slowly over rock transitions. Hard-to-soft bottom changes hold fish. Rock deflection cranks trigger hard reaction bites."
+    },
+    grass: {
+      boost:  ["Chatterbait","Spinnerbait","Frog","Squarebill","Fluke","Swimbait","Worm","Senko"],
+      avoid:  ["Rattletrap","Crankbait","Ned Rig"],
+      colorNotes: "Chartreuse and white punch through grass. Natural greens (watermelon, green pumpkin) blend with the vegetation for following fish.",
+      structureNote: "Target grass edges, points, and pockets. Chatterbaits and swimbaits over the top; worms and jigs punched through. Pause at every gap."
+    },
+    mats: {
+      boost:  ["Frog","Buzz Bait","Jig","Craw","Worm"],
+      avoid:  ["Crankbait","Rattletrap","Spinnerbait","Ned Rig","Damiki Rig","Fluke","Swimbait"],
+      colorNotes: "Dark silhouette colors dominate under matted vegetation — black/blue, june bug, dark green. Frog belly color matters most: white or chartreuse.",
+      structureNote: "Punch heavy jigs and craws through thick mats. Frog over the top. Heavy braid only — 50–65 lb. Bass hold tight to the underside of the mat canopy."
+    },
+    docks: {
+      boost:  ["Jig","Worm","Senko","Squarebill","Fluke","Swimbait","Dice Bait","Ned Rig"],
+      avoid:  ["Frog","Buzz Bait","Rattletrap"],
+      colorNotes: "Shade-zone baits: natural green pumpkin, watermelon, shad. Skip darker colors under low-hanging docks where light is blocked.",
+      structureNote: "Skip baits under floating docks to the back corner — that's where big fish live. Work cables, posts, and shade lines. Spinning gear for deep skips."
+    },
+    open: {
+      boost:  ["Swimbait","Rattletrap","Crankbait","Spinnerbait","Walking Bait","Prop Bait","Fluke","Buzz Bait","Damiki Rig","Ned Rig"],
+      avoid:  ["Frog","Squarebill"],
+      colorNotes: "Match the open-water forage — shad, herring, and baitfish colors. Sexy shad, tennessee shad, white/pearl, ghost. Natural over reaction in clear open water.",
+      structureNote: "Find structure beneath the open water — humps, ledges, channel bends. Use your graph to locate fish then present at their exact depth. Long casts maximize coverage."
+    },
+    brush: {
+      boost:  ["Jig","Craw","Ned Rig","Damiki Rig","Worm","Senko","Rattletrap","Dice Bait"],
+      avoid:  ["Crankbait","Squarebill","Frog","Buzz Bait"],
+      colorNotes: "Natural bottom colors — green pumpkin, brown orange, natural craw. Shad colors for suspended fish holding just above brush.",
+      structureNote: "Drop baits vertically into the top of brush piles with LiveScope. Jigs and craws in the timber; finesse baits for suspended fish above. Rattletrap yo-yoed off the top is deadly."
+    },
+    riprap: {
+      boost:  ["Crankbait","Squarebill","Rattletrap","Jig","Craw","Ned Rig","Spinnerbait"],
+      avoid:  ["Frog","Fluke","Swimbait"],
+      colorNotes: "Crawdad patterns are the go-to on riprap — red craw, spring craw, crawdad orange. Shad colors when bass are chasing bait along the rocks.",
+      structureNote: "Cast parallel to the riprap bank — don't cast into it perpendicularly. Crankbaits deflecting off rock triggers the best reaction bites. Work from shallow end to deep end to find their depth."
+    }
+  };
+  return data[cover] || data.open;
+}
+
+const COVER_LABELS = {
+  timber:"Timber", rock:"Rock / Hard Bottom", grass:"Grass / Weeds",
+  mats:"Mats / Slop", docks:"Docks / Piers", open:"Open Water",
+  brush:"Brush Piles", riprap:"Riprap"
+};
+const COVER_ICONS = {
+  timber:"🪵", rock:"🪨", grass:"🌿", mats:"🍃",
+  docks:"⚓", open:"🌊", brush:"🌾", riprap:"🧱"
+};
+
 
 const BAIT_ICONS = {
   "Spinnerbait":"🔄","Rattletrap":"🎯","Crankbait":"🐟","Squarebill":"🟦",
@@ -642,6 +800,33 @@ function pickColors(bait, sky, season, clarity, temp, moon, wind) {
     if(!palette.includes("june_bug"))   palette.push("june_bug");
   }
 
+  // Cover: push forage-matching colors to front based on all selected covers
+  const covers = activeCovers;
+  covers.forEach(cover => {
+    if ((cover === "rock" || cover === "riprap") && !isWinter) {
+      ["crawdad","natural_craw","brown_orange"].forEach(c => { if(!palette.includes(c)) palette.splice(1,0,c); });
+    }
+    if (cover === "grass" && !isWinter) {
+      ["watermelon","green_pumpkin","chartreuse"].forEach(c => { palette = palette.filter(x=>x!==c); palette.unshift(c); });
+    }
+    if (cover === "mats") {
+      ["black_blue","june_bug"].forEach(c => { palette = palette.filter(x=>x!==c); palette.unshift(c); });
+      if(!palette.includes("black_red")) palette.splice(2,0,"black_red");
+    }
+    if (cover === "timber") {
+      ["brown_orange","natural_craw","green_pumpkin"].forEach(c => { if(!palette.includes(c)) palette.splice(1,0,c); });
+    }
+    if (cover === "docks") {
+      ["green_pumpkin","watermelon","shad"].forEach(c => { palette = palette.filter(x=>x!==c); palette.unshift(c); });
+    }
+    if (cover === "open") {
+      ["shad","sexy_shad","white","tennessee_shad"].forEach(c => { palette = palette.filter(x=>x!==c); palette.unshift(c); });
+    }
+    if (cover === "brush") {
+      ["green_pumpkin","natural_craw","shad","brown_orange"].forEach(c => { if(!palette.includes(c)) palette.splice(1,0,c); });
+    }
+  });
+
   // Bait-specific
   switch(bait) {
     case "Spinnerbait":
@@ -711,11 +896,14 @@ function pickColors(bait, sky, season, clarity, temp, moon, wind) {
 // ─── CONFIDENCE ──────────────────────────────────────────────────────────────
 
 function getConfidence(bait, season, temp, moon, wind) {
-  const windMod = getWindModifiers(wind);
-  const moonMod = getMoonModifiers(moon);
+  const windMod  = getWindModifiers(wind);
+  const moonMod  = getMoonModifiers(moon);
+  const coverMod = getMergedCoverData(activeCovers);
   if (windMod.avoid.includes(bait)) return "low";
+  if (coverMod.avoid.includes(bait)) return "low";
   const moonBoost   = moonMod.boost.includes(bait);
   const windBoost   = windMod.boost.includes(bait);
+  const coverBoost  = coverMod.boost.includes(bait);
   const primeCombos = [
     ["Jig","prespawn"],["Craw","prespawn"],["Jig","spawn"],
     ["Crankbait","prespawn"],["Spinnerbait","prespawn"],
@@ -736,7 +924,7 @@ function getConfidence(bait, season, temp, moon, wind) {
   const seasonPrime = primeCombos.some(([b,s]) => b===bait && s===season);
   const seasonLow   = lowCombos.some(([b,s])   => b===bait && (s===season||s===temp));
   if (seasonLow) return "low";
-  if ((moonBoost && windBoost)||(moonBoost && seasonPrime)||(windBoost && seasonPrime)||seasonPrime||moonBoost||windBoost) return "high";
+  if ((moonBoost && windBoost)||(moonBoost && seasonPrime)||(windBoost && seasonPrime)||(coverBoost && seasonPrime)||(coverBoost && moonBoost)||(coverBoost && windBoost)||seasonPrime||moonBoost||windBoost||coverBoost) return "high";
   return "medium";
 }
 
@@ -1348,15 +1536,17 @@ function generate() {
   const temp    = document.getElementById("temp").value;
   const moon    = document.getElementById("moon").value;
   const wind    = document.getElementById("wind").value;
-  const windMod = getWindModifiers(wind);
-  const moonMod = getMoonModifiers(moon);
+  const windMod  = getWindModifiers(wind);
+  const moonMod  = getMoonModifiers(moon);
+  const coverMod = getMergedCoverData(activeCovers);
   const moonEmoji = MOON_LABELS[moon].split(" ").pop();
 
   document.getElementById("contextBanner").innerHTML =
     `<strong>${SKY_LABELS[sky]}</strong> · <strong>${SEASON_LABELS[season]}</strong> · <strong>${CLARITY_LABELS[clarity]}</strong> · <strong>${TEMP_LABELS[temp]}</strong><br>
+     <span style="color:#a8c870">${coverMod.structureNote}</span><br>
      <span class="moon-note">${moonEmoji} ${MOON_LABELS[moon].replace(/ [🌑🌒🌓🌔🌕🌖🌗🌘]/,"")}: ${moonMod.notes}</span><br>
      <span class="${windMod.severe?'wind-warn':'wind-note'}">💨 ${WIND_LABELS[wind]}: ${windMod.notes}</span><br>
-     <span style="color:var(--muted);font-size:0.82rem;">Colors ranked highest-confidence first · moon &amp; wind modifiers shown per bait</span>`;
+     <span style="color:var(--muted);font-size:0.82rem;">Colors ranked highest-confidence first · cover, moon &amp; wind modifiers shown per bait</span>`;
 
   const grid = document.getElementById("baitsGrid");
   grid.innerHTML = "";
@@ -1370,6 +1560,8 @@ function generate() {
     const moonBoost  = moonMod.boost.includes(bait);
     const windBoost  = windMod.boost.includes(bait);
     const windAvoid  = windMod.avoid.includes(bait);
+    const coverBoost = coverMod.boost.includes(bait);
+    const coverAvoid = coverMod.avoid.includes(bait);
 
     const card = document.createElement("div");
     card.className = `bait-card${isTop ? " top-pick" : ""}`;
@@ -1381,6 +1573,9 @@ function generate() {
     }).join("");
 
     let modTags = "";
+    const coverIcons = activeCovers.map(c => COVER_ICONS[c]).join("");
+    if (coverBoost) modTags += `<span class="mod-tag mod-cover">${coverIcons} Cover Pick</span>`;
+    if (coverAvoid) modTags += `<span class="mod-tag mod-coveravoid">${coverIcons} Tough Here</span>`;
     if (moonBoost)  modTags += `<span class="mod-tag mod-moon">${moonEmoji} Moon Bite</span>`;
     if (windBoost)  modTags += `<span class="mod-tag mod-wind">💨 Wind Favored</span>`;
     if (windAvoid)  modTags += `<span class="mod-tag mod-windwarn">💨 Tough in Wind</span>`;
