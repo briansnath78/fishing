@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bait Selector</title>
+<title>Bait Color Selector</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -440,7 +440,8 @@
 const BAIT_ICONS = {
   "Spinnerbait":"🔄","Rattletrap":"🎯","Crankbait":"🐟","Squarebill":"🟦",
   "Chatterbait":"⚡","Jig":"🪝","Worm":"🪱","Craw":"🦞","Swimbait":"🐠",
-  "Dice Bait":"🎲","Senko":"📏","Fluke":"🌊","Walking Bait":"🚶","Prop Bait":"💥"
+  "Dice Bait":"🎲","Senko":"📏","Fluke":"🌊","Walking Bait":"🚶","Prop Bait":"💥",
+  "Frog":"🐸","Ned Rig":"🔺","Damiki Rig":"🎣","Buzz Bait":"🌀"
 };
 
 const COLORS = {
@@ -500,13 +501,13 @@ function getMoonModifiers(moon) {
   switch(moon) {
     case "new":
       return {
-        boost: ["Walking Bait","Prop Bait","Spinnerbait","Rattletrap"],
+        boost: ["Walking Bait","Prop Bait","Frog","Buzz Bait","Spinnerbait","Rattletrap"],
         notes: "New moon = peak shallow/topwater bite. Bass feed aggressively in low-light conditions.",
         feedingWindow: true
       };
     case "full":
       return {
-        boost: ["Walking Bait","Prop Bait","Swimbait","Spinnerbait"],
+        boost: ["Walking Bait","Prop Bait","Frog","Buzz Bait","Swimbait","Spinnerbait"],
         notes: "Full moon triggers night feeding — early AM topwater bite can be exceptional. Fish may be tough midday.",
         feedingWindow: true
       };
@@ -520,7 +521,7 @@ function getMoonModifiers(moon) {
     case "first_quarter":
     case "last_quarter":
       return {
-        boost: ["Jig","Worm","Craw","Senko"],
+        boost: ["Jig","Worm","Craw","Senko","Ned Rig","Damiki Rig"],
         notes: "Quarter moons = finesse window. Slower presentations often outperform power fishing.",
         feedingWindow: false
       };
@@ -537,7 +538,7 @@ function getWindModifiers(wind) {
   switch(wind) {
     case "calm":
       return {
-        boost: ["Walking Bait","Prop Bait","Fluke","Senko","Dice Bait"],
+        boost: ["Walking Bait","Prop Bait","Frog","Fluke","Senko","Dice Bait","Ned Rig","Damiki Rig"],
         avoid: [],
         colorShift: false,
         notes: "Glass surface — finesse and topwater shine. Natural colors and light presentations.",
@@ -545,7 +546,7 @@ function getWindModifiers(wind) {
       };
     case "light":
       return {
-        boost: ["Spinnerbait","Chatterbait","Crankbait","Walking Bait"],
+        boost: ["Spinnerbait","Chatterbait","Crankbait","Walking Bait","Buzz Bait"],
         avoid: [],
         colorShift: false,
         notes: "Perfect chop. All-around excellent conditions. Work windward banks.",
@@ -554,7 +555,7 @@ function getWindModifiers(wind) {
     case "moderate":
       return {
         boost: ["Spinnerbait","Chatterbait","Rattletrap","Squarebill","Crankbait"],
-        avoid: ["Prop Bait","Walking Bait","Fluke"],
+        avoid: ["Prop Bait","Walking Bait","Frog","Buzz Bait","Fluke","Ned Rig","Damiki Rig"],
         colorShift: true,
         notes: "Wind pushes bait to windward banks. Power fishing excels; add chartreuse/white for visibility. Topwater gets tricky.",
         severe: false
@@ -562,7 +563,7 @@ function getWindModifiers(wind) {
     case "strong":
       return {
         boost: ["Rattletrap","Crankbait","Jig","Spinnerbait","Chatterbait"],
-        avoid: ["Prop Bait","Walking Bait","Fluke","Swimbait","Senko"],
+        avoid: ["Prop Bait","Walking Bait","Frog","Buzz Bait","Fluke","Swimbait","Senko","Ned Rig","Damiki Rig"],
         colorShift: true,
         notes: "Go heavier and louder. Chartreuse/white dominate. Topwater and finesse nearly unfishable. Work protected pockets.",
         severe: false
@@ -570,7 +571,7 @@ function getWindModifiers(wind) {
     case "gale":
       return {
         boost: ["Jig","Rattletrap","Squarebill"],
-        avoid: ["Prop Bait","Walking Bait","Fluke","Swimbait","Senko","Dice Bait","Worm"],
+        avoid: ["Prop Bait","Walking Bait","Frog","Buzz Bait","Fluke","Swimbait","Senko","Dice Bait","Worm","Ned Rig","Damiki Rig"],
         colorShift: true,
         notes: "⚠️ Dangerous conditions — seek shelter. If fishing, heavy jigs in protected coves only. High-vis colors essential.",
         severe: true
@@ -677,6 +678,31 @@ function pickColors(bait, sky, season, clarity, temp, moon, wind) {
       if(isLow && !palette.includes("chartreuse")) palette.splice(1,0,"chartreuse");
       if(moonLowLight && !palette.includes("black_blue")) palette.push("black_blue");
       break;
+    case "Frog":
+    case "Buzz Bait":
+      if(isDark || isStained) {
+        ["black_blue","chartreuse","white"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      } else if(isClear) {
+        ["green_pumpkin","white","shad","watermelon"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      } else {
+        ["white","chartreuse","shad","green_pumpkin"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      }
+      if(isLow || moonLowLight) {
+        ["black_blue","june_bug"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      }
+      break;
+    case "Ned Rig":
+      ["green_pumpkin","watermelon","shad","natural_craw"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      if(isDark) { if(!palette.includes("black_blue")) palette.unshift("black_blue"); }
+      if(!palette.includes("albino")) palette.push("albino");
+      if(!palette.includes("june_bug")) palette.push("june_bug");
+      break;
+    case "Damiki Rig":
+      ["shad","ghost","white","tennessee_shad"].forEach(c => { if(!palette.includes(c)) palette.splice(0,0,c); });
+      if(!palette.includes("albino")) palette.push("albino");
+      if(isDark) { if(!palette.includes("chartreuse")) palette.unshift("chartreuse"); }
+      if(!palette.includes("green_pumpkin")) palette.push("green_pumpkin");
+      break;
   }
 
   return [...new Set(palette)].slice(0, 6);
@@ -698,9 +724,14 @@ function getConfidence(bait, season, temp, moon, wind) {
     ["Crankbait","winter"],["Rattletrap","winter"],
     ["Chatterbait","prespawn"],
     ["Walking Bait","summer"],["Prop Bait","summer"],
+    ["Frog","summer"],["Frog","postspawn"],
+    ["Buzz Bait","prespawn"],["Buzz Bait","summer"],
+    ["Ned Rig","winter"],["Ned Rig","summer"],
+    ["Damiki Rig","winter"],["Damiki Rig","summer"],
   ];
   const lowCombos = [
     ["Prop Bait","winter"],["Walking Bait","winter"],["Fluke","winter"],["Swimbait","cold"],
+    ["Frog","winter"],["Frog","cold"],["Buzz Bait","winter"],["Buzz Bait","cold"],
   ];
   const seasonPrime = primeCombos.some(([b,s]) => b===bait && s===season);
   const seasonLow   = lowCombos.some(([b,s])   => b===bait && (s===season||s===temp));
@@ -732,7 +763,11 @@ function getTip(bait, season, sky, temp, moon, wind) {
     "Senko":        { spawn:"Wacky-rig weightless around beds — the slow sink drives fish crazy.", summer:"Texas-rig with a 1/16oz weight to fish docks and grass edges.", fall:"Wacky over offshore humps — often outfishes everything else.", _default:"Don't move it. The action IS the fall. Trust it." },
     "Fluke":        { prespawn:"Walk it over spawning flats — best on a weightless Texas rig.", fall:"Match shad size and work points and pockets with slack-line twitches.", summer:"Weightless over grass mats or under docks in calm conditions.", _default:"Slack line is key — the bait dies and glides on a paused twitch." },
     "Walking Bait": { summer:"Low-light windows at dawn — topwater bite is the most exciting in fishing.", fall:"Walk over schooling fish pushing shad to the surface.", prespawn:"Work over points and banks on warm afternoons.", _default:"Cadence matters more than speed — find the rhythm they want." },
-    "Prop Bait":    { summer:"Calm mornings over shallow grass — the chop triggers explosive strikes.", fall:"Pop-and-pause over schooling shad for surface explosions.", _default:"Let it sit completely still between twitches — the wait is deadly." }
+    "Prop Bait":    { summer:"Calm mornings over shallow grass — the chop triggers explosive strikes.", fall:"Pop-and-pause over schooling shad for surface explosions.", _default:"Let it sit completely still between twitches — the wait is deadly." },
+    "Frog":         { summer:"Work slowly over mats and slop — pause over any gap or pocket for 3–5 sec.", postspawn:"Post-spawn bass stack under mats to recover — frog is the go-to penetrator.", prespawn:"Burn a frog over open water near mats to call up active fish.", _default:"Slow down. Most anglers move a frog too fast." },
+    "Buzz Bait":    { prespawn:"Burn along shallow banks at dawn — pre-spawn bass are territorial and aggressive.", summer:"Fish it at first and last light over shallow grass and wood.", fall:"Match shad movement near the surface — fast burn over points.", _default:"Keep the bait moving — if it sinks it's too slow. Wake only, never sink." },
+    "Ned Rig":      { winter:"Dead-stick on a drop-shot or mushroom head at depth — most finesse presentation possible.", summer:"Drag slowly over hard bottom, rocks, shell — the stand-up head is irresistible.", spawn:"Shaky Ned on or near beds — subtle action with no aggression needed.", _default:"Less is more — small profile, slow drag, long pause. Let the bait do everything." },
+    "Damiki Rig":   { winter:"Vertical presentation over suspended fish on LiveScope — deadstick in their face.", summer:"Drop-shot style over deep structure — barely shake it in place.", _default:"A gliding finesse presentation — drop, shake once, pause. Repeat at each depth change." }
   };
 
   const baitTips = baseTips[bait] || {};
@@ -1121,6 +1156,142 @@ function getTechnique(bait, season, clarity, sky, temp, moon, wind) {
       return [primary, secondary, note];
     }
 
+    case "Frog": {
+      if (isWinter || isCold) {
+        return [
+          { badge:"SKIP",   type:"step-primary",   text:"Frogs don't belong in cold water — bass won't push through mats or blow up on surface when lethargic." },
+          { badge:"MAYBE",  type:"step-secondary", text:"If mats are present and water is 58°F+: slow drag over mat edges only. Very long pauses." },
+          { badge:"TIP",    type:"step-note",      text:"Switch to a jig punched through the mat — same zone, far more effective in cold conditions." }
+        ];
+      } else if (isDark) {
+        return [
+          { badge:"SLOW",   type:"step-primary",   text:"Slow crawl over the mat — just fast enough to create a surface wake. <em>Stop completely over every hole or gap in the vegetation.</em>" },
+          { badge:"PAUSE",  type:"step-secondary", text:"5–8 second pause over any opening. In muddy water bass locate by sound/vibration — give them time to track it." },
+          { badge:"TIP",    type:"step-note",      text:"Black frog in muddy/dark water for maximum silhouette. Add a rattle or use a popping frog to generate more surface commotion." }
+        ];
+      } else if (isPre || isPost) {
+        return [
+          { badge:"BURN",   type:"step-primary",   text:"Burn a frog over open water near mat edges and points — active post/pre-spawn bass will blow up mid-retrieve. <em>Don't hesitate, keep moving.</em>" },
+          { badge:"WALK",   type:"step-secondary", text:"Walk-the-dog style over open pockets — twitch-twitch-pause. Works like a walking bait but over surface vegetation." },
+          { badge:"TIP",    type:"step-note",      text:"Use a popping frog in open pockets and a hollow body frog over mats. White or chartreuse belly for active fish." }
+        ];
+      } else if (isSummer) {
+        return [
+          { badge:"CRAWL",  type:"step-primary",   text:"Slow crawl over the thickest mat available — <em>the thicker the better in summer. Bass use it as a roof to ambush from below.</em>" },
+          { badge:"PAUSE",  type:"step-secondary", text:"Pause 3–5 seconds over any depression, hole, or shadow in the mat. This is where the blow-up happens." },
+          { badge:"TIP",    type:"step-note",      text:"Heavy braid only — 50–65 lb. Set the hook hard and immediately get their head up. Wait for the weight after the blow-up, not the explosion." }
+        ];
+      } else {
+        return [
+          { badge:"CRAWL",  type:"step-primary",   text:"Walk it slowly across the mat surface — <em>steady enough to create a wake, slow enough to stay in the strike zone.</em>" },
+          { badge:"PAUSE",  type:"step-secondary", text:"Dead-stop over any opening, pocket, or point on the mat edge. Long pause on shade lines." },
+          { badge:"TIP",    type:"step-note",      text:"Wait for the weight after the blow-up before setting. Count 'one-one-thousand' then set hard with heavy braid." }
+        ];
+      }
+    }
+
+    case "Buzz Bait": {
+      if (isWinter || isCold) {
+        return [
+          { badge:"SKIP",   type:"step-primary",   text:"Buzz baits are a warm-water presentation only. Bass will not chase surface commotion in cold water." },
+          { badge:"TRY",    type:"step-secondary", text:"Only worth a shot if surface temp exceeds 60°F on a calm warm morning — single slow buzz over shallow wood." },
+          { badge:"TIP",    type:"step-note",      text:"Switch to a slow-rolled spinnerbait or squarebill for similar reaction-bite results in cold conditions." }
+        ];
+      } else if (isPre || isSpawn) {
+        return [
+          { badge:"BURN",   type:"step-primary",   text:"Fast burn along shallow banks at dawn — <em>keep the bait on the surface the entire retrieve. Speed = staying up = reaction.</em>" },
+          { badge:"VARY",   type:"step-secondary", text:"Slow it down just enough to barely helicopter the blade. That slower speed triggers followers that won't eat the fast burn." },
+          { badge:"TIP",    type:"step-note",      text:"Cast parallel to the bank. A clacker or trailer hook increases hookup ratio. White/chartreuse skirt." }
+        ];
+      } else if (isFall) {
+        return [
+          { badge:"BURN",   type:"step-primary",   text:"Burn over points and pockets where shad are schooling near the surface. <em>Match the frenzied shad speed — fast retrieve.</em>" },
+          { badge:"CAST",   type:"step-secondary", text:"Cast past the school, burn through it. Follow the birds. Buzz bait in a fall blowup is as good as it gets." },
+          { badge:"TIP",    type:"step-note",      text:"Shad-colored skirt. Use a trailer hook — bass short-striking shad often slap rather than engulf." }
+        ];
+      } else if (isDark || isStained) {
+        return [
+          { badge:"SLOW",   type:"step-primary",   text:"Slow the buzz down — just fast enough to stay up. <em>In muddy water bass track by sound. Slow = more hang time in the strike zone.</em>" },
+          { badge:"CLACK",  type:"step-secondary", text:"Use a clacker-style buzz for extra noise and vibration. Fish it along any visible cover edge." },
+          { badge:"TIP",    type:"step-note",      text:"Black skirt with a bright blade in muddy water. Cast tight to cover and be ready — bites are explosive." }
+        ];
+      } else {
+        return [
+          { badge:"BURN",   type:"step-primary",   text:"Steady burn keeping the blade churning — don't let it sink. <em>Work parallel to banks, grass edges, and dock lines at dawn/dusk.</em>" },
+          { badge:"KILL",   type:"step-secondary", text:"Kill the bait right when it passes a piece of cover — let it flutter down. Deadly on followers." },
+          { badge:"TIP",    type:"step-note",      text:"Early morning and evening only in clear water — bass go deep midday. Switch to a deeper bait when surface action dies." }
+        ];
+      }
+    }
+
+    case "Ned Rig": {
+      if (isWinter || isCold) {
+        return [
+          { badge:"DRAG",   type:"step-primary",   text:"Drag painfully slowly along deep hard bottom — <em>3 inches at a time. The stand-up head stays upright on every pause.</em>" },
+          { badge:"DEAD",   type:"step-secondary", text:"Dead-stick 8–12 seconds between drags. Cold bass will stare at it for a long time before committing." },
+          { badge:"TIP",    type:"step-note",      text:"2.5–3\" ElaZtech bait on a 3/16 oz mushroom jig head. 6–8 lb fluoro spinning setup. Fish 15–30ft structure." }
+        ];
+      } else if (isSpawn) {
+        return [
+          { badge:"BED",    type:"step-primary",   text:"Pitch onto beds — the stand-up posture on bottom is extremely aggravating to bedding bass. <em>Shake in place, don't move it off.</em>" },
+          { badge:"SHAKE",  type:"step-secondary", text:"Subtle shake with zero forward movement. Finesse rod tip vibration is all you need. Long pauses." },
+          { badge:"TIP",    type:"step-note",      text:"Natural green pumpkin or watermelon. Fluorocarbon leader — no line shadow on clear spawning flats." }
+        ];
+      } else if (isSummer) {
+        return [
+          { badge:"DRAG",   type:"step-primary",   text:"Drag across main-lake hard bottom — shell beds, rock, gravel. <em>The mushroom head stands it up between every move — irresistible to summer bass.</em>" },
+          { badge:"HOP",    type:"step-secondary", text:"Small subtle hops — 3–4\" lifts, not big sweeps. Let it stand back up after each hop. Watch for the line to tick." },
+          { badge:"TIP",    type:"step-note",      text:"3/16–1/4 oz for depth. Green pumpkin or natural craw. Spinning gear, 8–10 lb fluoro." }
+        ];
+      } else if (isFall) {
+        return [
+          { badge:"DRAG",   type:"step-primary",   text:"Drag over main-lake humps and transitions — slow and steady. <em>Fall bass feeding on crawdads love the stand-up presentation near hard bottom.</em>" },
+          { badge:"SWIM",   type:"step-secondary", text:"Try slowly swimming the Ned just off bottom — a subtle swimbait-like retrieve that works over grass edges." },
+          { badge:"TIP",    type:"step-note",      text:"Shad colors in fall work surprisingly well on Ned — match the forage shift. 3–3.5\" profile." }
+        ];
+      } else {
+        return [
+          { badge:"DRAG",   type:"step-primary",   text:"Slow drag along any hard bottom transition — <em>feel for shell to soft, gravel to mud. Bass hold on composition changes.</em>" },
+          { badge:"SHAKE",  type:"step-secondary", text:"Shake in place over any hard spot — don't move it forward, just vibrate the rod tip for 3–4 seconds." },
+          { badge:"TIP",    type:"step-note",      text:"Less is more with a Ned. Tiny bait, light line, subtle action. High-pressure post-cold-front — this is the call." }
+        ];
+      }
+    }
+
+    case "Damiki Rig": {
+      if (isWinter || isCold) {
+        return [
+          { badge:"VERT",   type:"step-primary",   text:"Drop vertically over suspended fish located on LiveScope or graph. <em>Match their exact depth and deadstick the bait in front of them.</em>" },
+          { badge:"GLIDE",  type:"step-secondary", text:"Slight rod twitch — bait glides out then flutters back. One twitch, 8–10 second pause. The glide is the trigger." },
+          { badge:"TIP",    type:"step-note",      text:"1/4–3/8 oz stand-up head. Ghost, shad, or albino colors in clear winter water. 6–8 lb fluorocarbon." }
+        ];
+      } else if (isSummer) {
+        return [
+          { badge:"SCOPE",  type:"step-primary",   text:"Position over suspended or bottom-hugging fish on LiveScope — drop to their depth, <em>single shake, dead-stop. Don't move it off them.</em>" },
+          { badge:"DROP",   type:"step-secondary", text:"Drop-shot style along ledge breaks — drag 12\", pause and shake once, drag again. Methodical bottom-to-mid column coverage." },
+          { badge:"TIP",    type:"step-note",      text:"Shad or natural finesse bait 2.5–3.5\". The Damiki excels when fish are lethargic in heat — it's almost unfair." }
+        ];
+      } else if (isSpawn) {
+        return [
+          { badge:"BED",    type:"step-primary",   text:"Drop onto beds and hold position — <em>single glide twitch, then deadstick. The erratic glide mimics an intruder and triggers aggression.</em>" },
+          { badge:"HOVER",  type:"step-secondary", text:"Hover just above the bed at 12–18\" leader length — constant subtle presence without sitting on bottom." },
+          { badge:"TIP",    type:"step-note",      text:"Natural shad or green pumpkin. Lighter 3/16 oz head for a slower glide. Fluoro only on clear spawning flats." }
+        ];
+      } else if (isFall) {
+        return [
+          { badge:"SUSPEND",type:"step-primary",   text:"Target suspended bass on main-lake structure — cast, count to depth, single twitch-pause. <em>Fall bass suspend over brush at consistent depths.</em>" },
+          { badge:"DRAG",   type:"step-secondary", text:"Drag along bottom near suspended schools — bass often drop to feed between glides to the surface." },
+          { badge:"TIP",    type:"step-note",      text:"Shad colors dominate in fall. 1/4 oz head at 10–20ft. Mark fish on graph first, then present at their depth." }
+        ];
+      } else {
+        return [
+          { badge:"GLIDE",  type:"step-primary",   text:"Single twitch — bait glides out and flutters back to stand-up. <em>Pause 5–6 seconds. The glide-and-settle triggers reaction bites.</em>" },
+          { badge:"DRAG",   type:"step-secondary", text:"Slow drag along hard bottom transitions — let the stand-up head work naturally between pulls." },
+          { badge:"TIP",    type:"step-note",      text:"Best on spinning gear, 8 lb fluoro. Finesse presentation — shad colors in clear, chartreuse/white in stain." }
+        ];
+      }
+    }
+
     default:
       return [
         { badge:"WORK",  type:"step-primary",   text:"Vary your retrieve speed and cadence until bass respond. Start slow in cold water, faster in warm." },
@@ -1163,7 +1334,8 @@ function updateInsights() {
 
 const BAITS = [
   "Spinnerbait","Rattletrap","Crankbait","Squarebill","Chatterbait",
-  "Jig","Worm","Craw","Swimbait","Dice Bait","Senko","Fluke","Walking Bait","Prop Bait"
+  "Jig","Worm","Craw","Swimbait","Dice Bait","Senko","Fluke","Walking Bait","Prop Bait",
+  "Frog","Ned Rig","Damiki Rig","Buzz Bait"
 ];
 
 function confClass(c) { return c==="high"?"conf-high":c==="medium"?"conf-med":"conf-low"; }
